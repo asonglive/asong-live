@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>🎵 DJ Request</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --green: #1DB954;
+    --dark: #121212;
+    --card: #1e1e1e;
+    --card2: #2a2a2a;
+    --text: #fff;
+    --muted: #b3b3b3;
+  }
+  body { background: var(--dark); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+  header { background: linear-gradient(135deg, #1DB954 0%, #158a3e 100%); padding: 28px 20px 20px; text-align: center; }
+  header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+  header p { font-size: 0.85rem; opacity: 0.85; margin-top: 4px; }
+  .tabs { display: flex; background: var(--card); border-bottom: 1px solid #333; }
+  .tab { flex: 1; padding: 14px; text-align: center; font-size: 0.85rem; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all .2s; }
+  .tab.active { color: var(--green); border-bottom-color: var(--green); }
+  .panel { display: none; padding: 16px; }
+  .panel.active { display: block; }
+
+  /* Buscar */
+  .search-box { position: relative; margin-bottom: 12px; }
+  .search-box input { width: 100%; background: var(--card2); border: 2px solid #333; border-radius: 12px; padding: 14px 44px 14px 16px; color: var(--text); font-size: 1rem; outline: none; transition: border .2s; }
+  .search-box input:focus { border-color: var(--green); }
+  .search-box .icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; }
+  .spinner { display: none; text-align: center; padding: 20px; color: var(--muted); }
+  .track-card { display: flex; align-items: center; gap: 12px; background: var(--card2); border-radius: 12px; padding: 10px; margin-bottom: 8px; cursor: pointer; border: 2px solid transparent; transition: all .2s; }
+  .track-card:hover, .track-card.selected { border-color: var(--green); background: #1a3326; }
+  .track-card img { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; }
+  .track-info { flex: 1; min-width: 0; }
+  .track-name { font-weight: 700; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .track-artist { color: var(--muted); font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Form dedicatoria */
+  .form-section { margin-top: 16px; display: none; }
+  .form-section.visible { display: block; }
+  .selected-preview { background: #1a3326; border: 1px solid var(--green); border-radius: 12px; padding: 12px; display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+  .selected-preview img { width: 44px; height: 44px; border-radius: 6px; }
+  textarea { width: 100%; background: var(--card2); border: 2px solid #333; border-radius: 12px; padding: 12px; color: var(--text); font-size: 0.95rem; outline: none; resize: none; transition: border .2s; }
+  textarea:focus { border-color: var(--green); }
+  .btn { width: 100%; padding: 15px; background: var(--green); color: #000; border: none; border-radius: 12px; font-size: 1rem; font-weight: 800; cursor: pointer; margin-top: 10px; transition: transform .1s, opacity .2s; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn.danger { background: #e74c3c; color: #fff; }
+
+  /* Cola */
+  .cola-item { background: var(--card2); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; align-items: center; }
+  .cola-item img { width: 48px; height: 48px; border-radius: 8px; }
+  .cola-info { flex: 1; min-width: 0; }
+  .cola-name { font-weight: 700; font-size: 0.9rem; }
+  .cola-artist { color: var(--muted); font-size: 0.78rem; }
+  .cola-dedicatoria { color: #aaa; font-size: 0.78rem; margin-top: 3px; font-style: italic; }
+  .vote-btn { background: var(--card); border: 2px solid #444; border-radius: 10px; padding: 8px 12px; color: var(--text); font-size: 0.85rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 50px; transition: all .2s; }
+  .vote-btn.voted { border-color: var(--green); color: var(--green); }
+  .vote-btn span { font-size: 1.1rem; }
+  .estado-badge { font-size: 0.7rem; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
+  .estado-pendiente { background: #333; color: #aaa; }
+  .estado-aprobada { background: #1a3326; color: var(--green); }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--green); color: #000; padding: 12px 24px; border-radius: 30px; font-weight: 700; font-size: 0.9rem; transition: transform .3s; z-index: 999; white-space: nowrap; }
+  .toast.error { background: #e74c3c; color: #fff; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .empty { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎵 DJ Request</h1>
+  <p>{{ evento.nombre if evento else "Sin evento activo" }}</p>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="setTab('solicitar')">🎤 Pedir canción</div>
+  <div class="tab" onclick="setTab('cola')">📋 Cola</div>
+</div>
+
+<!-- PANEL SOLICITAR -->
+<div class="panel active" id="tab-solicitar">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Busca una canción o artista..." oninput="onSearch(this.value)">
+    <span class="icon">🔍</span>
+  </div>
+  <div class="spinner" id="spinner">Buscando en Spotify...</div>
+  <div id="resultados"></div>
+
+  <div class="form-section" id="formSection">
+    <div class="selected-preview" id="selectedPreview"></div>
+    <textarea id="dedicatoria" placeholder="Dedicatoria o mensaje para el DJ (opcional)" rows="3" maxlength="200"></textarea>
+    <div style="text-align:right; color:var(--muted); font-size:0.75rem; margin-top:4px"><span id="charCount">0</span>/200</div>
+    <button class="btn" id="submitBtn" onclick="enviarSolicitud()">🎶 Enviar solicitud</button>
+  </div>
+</div>
+
+<!-- PANEL COLA -->
+<div class="panel" id="tab-cola">
+  <div id="colaContainer"><div class="empty">⏳ Cargando solicitudes...</div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const EVENTO_ID = {{ evento.id if evento else 0 }};
+let selectedTrack = null;
+let searchTimer = null;
+let votados = JSON.parse(localStorage.getItem('votados') || '[]');
+
+function setTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const tabs = ['solicitar','cola'];
+  document.querySelectorAll('.tab')[tabs.indexOf(name)].classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if (name === 'cola') loadCola();
+}
+
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isError ? ' error' : '') + ' show';
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function onSearch(q) {
+  clearTimeout(searchTimer);
+  if (q.length < 2) { document.getElementById('resultados').innerHTML = ''; return; }
+  document.getElementById('spinner').style.display = 'block';
+  searchTimer = setTimeout(() => buscar(q), 500);
+}
+
+async function buscar(q) {
+  const res = await fetch(`/api/buscar?q=${encodeURIComponent(q)}`);
+  const tracks = await res.json();
+  document.getElementById('spinner').style.display = 'none';
+  const container = document.getElementById('resultados');
+  if (!tracks.length) { container.innerHTML = '<div class="empty">No se encontraron canciones 😕</div>'; return; }
+  container.innerHTML = tracks.map(t => `
+    <div class="track-card" onclick="selectTrack(${JSON.stringify(t).replace(/"/g,'&quot;')})" data-id="${t.spotify_id}">
+      <img src="${t.portada_url}" alt="">
+      <div class="track-info">
+        <div class="track-name">${t.cancion}</div>
+        <div class="track-artist">${t.artista}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectTrack(track) {
+  selectedTrack = track;
+  document.querySelectorAll('.track-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector(`[data-id="${track.spotify_id}"]`).classList.add('selected');
+  document.getElementById('selectedPreview').innerHTML = `
+    <img src="${track.portada_url}" alt="">
+    <div><div style="font-weight:700">${track.cancion}</div><div style="color:var(--muted);font-size:0.8rem">${track.artista}</div></div>
+  `;
+  document.getElementById('formSection').classList.add('visible');
+  document.getElementById('formSection').scrollIntoView({behavior:'smooth'});
+}
+
+document.getElementById('dedicatoria').addEventListener('input', function() {
+  document.getElementById('charCount').textContent = this.value.length;
+});
+
+async function enviarSolicitud() {
+  if (!selectedTrack) return;
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  const res = await fetch('/api/solicitar', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      evento_id: EVENTO_ID,
+      cancion: selectedTrack.cancion,
+      artista: selectedTrack.artista,
+      spotify_id: selectedTrack.spotify_id,
+      portada_url: selectedTrack.portada_url,
+      dedicatoria: document.getElementById('dedicatoria').value
+    })
+  });
+  const data = await res.json();
+  if (res.ok) {
+    showToast('✅ ¡Solicitud enviada!');
+    selectedTrack = null;
+    document.getElementById('searchInput').value = '';
+    document.getElementById('resultados').innerHTML = '';
+    document.getElementById('formSection').classList.remove('visible');
+    document.getElementById('dedicatoria').value = '';
+    btn.textContent = '🎶 Enviar solicitud';
+    btn.disabled = false;
+  } else {
+    showToast(data.detail || 'Error al enviar', true);
+    btn.textContent = '🎶 Enviar solicitud';
+    btn.disabled = false;
+  }
+}
+
+async function loadCola() {
+  const res = await fetch(`/api/cola/${EVENTO_ID}`);
+  const items = await res.json();
+  const c = document.getElementById('colaContainer');
+  if (!items.length) { c.innerHTML = '<div class="empty">🎧 No hay solicitudes aún.<br>¡Sé el primero!</div>'; return; }
+  c.innerHTML = items.map(s => `
+    <div class="cola-item" id="cola-${s.id}">
+      <img src="${s.portada_url || 'https://via.placeholder.com/48'}" alt="">
+      <div class="cola-info">
+        <div class="cola-name">${s.cancion}</div>
+        <div class="cola-artist">${s.artista}</div>
+        ${s.dedicatoria ? `<div class="cola-dedicatoria">💬 "${s.dedicatoria}"</div>` : ''}
+        <span class="estado-badge estado-${s.estado}">${s.estado}</span>
+      </div>
+      <button class="vote-btn ${votados.includes(s.id) ? 'voted' : ''}" onclick="votar(${s.id}, this)">
+        <span>🔥</span>${s.votos}
+      </button>
+    </div>
+  `).join('');
+}
+
+async function votar(id, btn) {
+  if (votados.includes(id)) { showToast('Ya votaste por esta canción', true); return; }
+  const res = await fetch(`/api/votar/${id}`, {method:'POST'});
+  const data = await res.json();
+  if (res.ok) {
+    votados.push(id);
+    localStorage.setItem('votados', JSON.stringify(votados));
+    btn.classList.add('voted');
+    btn.innerHTML = `<span>🔥</span>${data.votos}`;
+    showToast('🔥 ¡Voto registrado!');
+  } else {
+    showToast(data.detail || 'Error', true);
+  }
+}
+</script>
+</body>
+</html>

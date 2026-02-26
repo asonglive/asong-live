@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎧 Panel DJ</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --green: #1DB954; --dark: #121212; --card: #1e1e1e; --card2: #2a2a2a; }
+  body { background: var(--dark); color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+  /* Login */
+  #loginScreen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+  .login-card { background: var(--card); border-radius: 16px; padding: 36px; width: 100%; max-width: 380px; text-align: center; }
+  .login-card h1 { font-size: 2rem; margin-bottom: 8px; }
+  .login-card p { color: #888; margin-bottom: 24px; }
+  .login-card input { width: 100%; background: var(--card2); border: 2px solid #333; border-radius: 10px; padding: 13px; color: #fff; font-size: 1rem; outline: none; text-align: center; letter-spacing: 4px; margin-bottom: 12px; }
+  .login-card input:focus { border-color: var(--green); }
+  .btn { padding: 13px 24px; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all .2s; }
+  .btn-green { background: var(--green); color: #000; width: 100%; }
+  .btn-approve { background: #1DB954; color: #000; }
+  .btn-play { background: #3498db; color: #fff; }
+  .btn-reject { background: #e74c3c; color: #fff; }
+  .btn:hover { opacity: 0.85; }
+
+  /* Panel */
+  #djPanel { display: none; }
+  header { background: linear-gradient(135deg, #1DB954, #0f6b31); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
+  header h1 { font-size: 1.3rem; font-weight: 800; }
+  .ws-status { font-size: 0.75rem; padding: 5px 12px; border-radius: 20px; font-weight: 600; }
+  .ws-connected { background: rgba(0,0,0,0.3); color: #fff; }
+  .ws-disconnected { background: #e74c3c; color: #fff; }
+
+  .filters { display: flex; gap: 8px; padding: 14px; overflow-x: auto; }
+  .filter-btn { padding: 8px 16px; background: var(--card2); border: 2px solid #333; border-radius: 20px; color: #888; font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all .2s; }
+  .filter-btn.active { border-color: var(--green); color: var(--green); background: #1a3326; }
+
+  .content { padding: 14px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+  .stat { background: var(--card2); border-radius: 10px; padding: 12px; text-align: center; }
+  .stat-num { font-size: 1.8rem; font-weight: 900; color: var(--green); }
+  .stat-label { font-size: 0.72rem; color: #888; margin-top: 2px; }
+
+  .song-card { background: var(--card2); border-radius: 14px; padding: 14px; margin-bottom: 10px; border-left: 4px solid #444; transition: all .3s; }
+  .song-card.pendiente { border-left-color: #888; }
+  .song-card.aprobada { border-left-color: var(--green); }
+  .song-card.nueva { animation: highlight .8s ease; }
+  @keyframes highlight { 0% { background: #1a3326; } 100% { background: var(--card2); } }
+
+  .song-top { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+  .song-top img { width: 54px; height: 54px; border-radius: 8px; }
+  .song-top-info { flex: 1; }
+  .song-name { font-weight: 800; font-size: 1rem; }
+  .song-artist { color: #888; font-size: 0.82rem; margin-top: 2px; }
+  .song-meta { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+  .votos-badge { background: #333; border-radius: 20px; padding: 2px 10px; font-size: 0.75rem; font-weight: 700; }
+  .dedicatoria { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 8px 10px; font-size: 0.82rem; color: #bbb; font-style: italic; margin-bottom: 10px; }
+  .song-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .song-actions .btn { padding: 8px 16px; font-size: 0.82rem; border-radius: 8px; }
+
+  .empty { text-align: center; color: #555; padding: 50px 20px; font-size: 0.9rem; }
+  .notification { position: fixed; top: 20px; right: 20px; background: var(--green); color: #000; padding: 14px 20px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; transform: translateX(200%); transition: transform .3s; z-index: 999; max-width: 280px; }
+  .notification.show { transform: translateX(0); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div style="font-size:3rem; margin-bottom:12px">🎧</div>
+    <h1>Panel DJ</h1>
+    <p>Ingresa tu contraseña</p>
+    <input type="password" id="pwdInput" placeholder="••••••" onkeydown="if(event.key==='Enter')login()">
+    <button class="btn btn-green" onclick="login()">Entrar al panel</button>
+    <p id="loginError" style="color:#e74c3c; font-size:0.8rem; margin-top:10px; display:none">Contraseña incorrecta</p>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div id="djPanel">
+  <header>
+    <h1>🎧 DJ Panel</h1>
+    <span class="ws-status ws-disconnected" id="wsStatus">⚡ Conectando...</span>
+  </header>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="setFilter('todas', this)">🎵 Todas</button>
+    <button class="filter-btn" onclick="setFilter('pendiente', this)">⏳ Pendientes</button>
+    <button class="filter-btn" onclick="setFilter('aprobada', this)">✅ Aprobadas</button>
+  </div>
+
+  <div class="content">
+    <div class="stats">
+      <div class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total</div></div>
+      <div class="stat"><div class="stat-num" id="statPendientes">0</div><div class="stat-label">Pendientes</div></div>
+      <div class="stat"><div class="stat-num" id="statVotos">0</div><div class="stat-label">Votos</div></div>
+    </div>
+    <div id="solicitudesContainer"><div class="empty">Cargando...</div></div>
+  </div>
+</div>
+
+<div class="notification" id="notification"></div>
+
+<script>
+let PASSWORD = '';
+let solicitudes = [];
+let filtroActual = 'todas';
+let ws;
+
+async function login() {
+  const pwd = document.getElementById('pwdInput').value;
+  const res = await fetch(`/api/dj/solicitudes?password=${encodeURIComponent(pwd)}`);
+  if (res.ok) {
+    PASSWORD = pwd;
+    solicitudes = await res.json();
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('djPanel').style.display = 'block';
+    renderSolicitudes();
+    conectarWS();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+function conectarWS() {
+  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${protocol}//${location.host}/ws/dj`);
+  ws.onopen = () => {
+    document.getElementById('wsStatus').textContent = '🟢 En vivo';
+    document.getElementById('wsStatus').className = 'ws-status ws-connected';
+  };
+  ws.onclose = () => {
+    document.getElementById('wsStatus').textContent = '🔴 Desconectado';
+    document.getElementById('wsStatus').className = 'ws-status ws-disconnected';
+    setTimeout(conectarWS, 3000);
+  };
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    if (msg.tipo === 'nueva_solicitud') {
+      solicitudes.unshift(msg.solicitud);
+      renderSolicitudes();
+      showNotification(`🎵 Nueva solicitud: ${msg.solicitud.cancion}`);
+    } else if (msg.tipo === 'voto') {
+      const s = solicitudes.find(x => x.id === msg.solicitud_id);
+      if (s) { s.votos = msg.votos; renderSolicitudes(); }
+    } else if (msg.tipo === 'estado_actualizado') {
+      const s = solicitudes.find(x => x.id === msg.solicitud_id);
+      if (s) { s.estado = msg.estado; renderSolicitudes(); }
+    }
+  };
+}
+
+function setFilter(f, btn) {
+  filtroActual = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSolicitudes();
+}
+
+function renderSolicitudes() {
+  const filtered = filtroActual === 'todas'
+    ? solicitudes.filter(s => s.estado !== 'reproducida' && s.estado !== 'rechazada')
+    : solicitudes.filter(s => s.estado === filtroActual);
+
+  const sorted = [...filtered].sort((a,b) => b.votos - a.votos);
+
+  document.getElementById('statTotal').textContent = solicitudes.length;
+  document.getElementById('statPendientes').textContent = solicitudes.filter(s=>s.estado==='pendiente').length;
+  document.getElementById('statVotos').textContent = solicitudes.reduce((acc,s)=>acc+s.votos,0);
+
+  const c = document.getElementById('solicitudesContainer');
+  if (!sorted.length) { c.innerHTML = '<div class="empty">🎧 Sin solicitudes en esta categoría</div>'; return; }
+
+  c.innerHTML = sorted.map(s => `
+    <div class="song-card ${s.estado}" id="card-${s.id}">
+      <div class="song-top">
+        <img src="${s.portada_url || 'https://via.placeholder.com/54'}" alt="">
+        <div class="song-top-info">
+          <div class="song-name">${s.cancion}</div>
+          <div class="song-artist">${s.artista}</div>
+          <div class="song-meta">
+            <span class="votos-badge">🔥 ${s.votos} votos</span>
+            <span style="font-size:0.7rem; color:#666">${s.estado}</span>
+          </div>
+        </div>
+      </div>
+      ${s.dedicatoria ? `<div class="dedicatoria">💬 "${s.dedicatoria}"</div>` : ''}
+      <div class="song-actions">
+        ${s.estado === 'pendiente' ? `<button class="btn btn-approve" onclick="actualizar(${s.id},'aprobada')">✅ Aprobar</button>` : ''}
+        <button class="btn btn-play" onclick="actualizar(${s.id},'reproducida')">▶️ Reproducida</button>
+        <button class="btn btn-reject" onclick="actualizar(${s.id},'rechazada')">❌ Rechazar</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function actualizar(id, estado) {
+  const res = await fetch(`/api/dj/actualizar/${id}`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ password: PASSWORD, estado })
+  });
+  if (res.ok) {
+    const s = solicitudes.find(x => x.id === id);
+    if (s) s.estado = estado;
+    renderSolicitudes();
+  }
+}
+
+function showNotification(msg) {
+  const n = document.getElementById('notification');
+  n.textContent = msg;
+  n.classList.add('show');
+  setTimeout(() => n.classList.remove('show'), 4000);
+}
+</script>
+</body>
+</html>
