@@ -38,7 +38,30 @@ class ConnectionManager:
             except:
                 pass
 
+    async def connect_user(self, ws, solicitud_id: int):
+        await ws.accept()
+        if solicitud_id not in self.user_connections:
+            self.user_connections[solicitud_id] = []
+        self.user_connections[solicitud_id].append(ws)
+
+    def disconnect_user(self, ws, solicitud_id: int):
+        if solicitud_id in self.user_connections:
+            try: self.user_connections[solicitud_id].remove(ws)
+            except: pass
+
+    async def notify_user(self, solicitud_id: int, estado: str, cancion: str):
+        mensajes = {
+            "aprobada": f"✅ El DJ tiene tu canción. '{cancion}' viene pronto 🎶",
+            "rechazada": f"😔 El DJ no tiene '{cancion}' disponible ahora",
+            "reproducida": f"🎉 ¡Suena tu canción! '{cancion}' está en el aire",
+            "next_song": f"⚡ ¡Prepárate! '{cancion}' es la siguiente canción 🔥"
+        }
+        for ws in self.user_connections.get(solicitud_id, []):
+            try: await ws.send_json({"tipo": estado, "mensaje": mensajes.get(estado, "")})
+            except: pass
+
 manager = ConnectionManager()
+manager.user_connections = {}
 
 # ─── Startup ──────────────────────────────────────────────────────────
 @app.on_event("startup")
@@ -193,7 +216,37 @@ async def dj_actualizar(solicitud_id: int, data: dict):
         "solicitud_id": solicitud_id,
         "estado": nuevo_estado
     })
+    # Notificar al usuario en tiempo real
+    async with aiosqlite.connect("dj_request.db") as db:
+        cursor = await db.execute("SELECT cancion FROM solicitudes WHERE id=?", (solicitud_id,))
+        row = await cursor.fetchone()
+        if row:
+            await manager.notify_user(solicitud_id, nuevo_estado, row[0])
     return {"ok": True}
+
+# ─── Next Song ────────────────────────────────────────────────────────
+@app.post("/api/dj/next-song/{solicitud_id}")
+async def dj_next_song(solicitud_id: int, data: dict):
+    if data.get("password") != DJ_PASSWORD:
+        raise HTTPException(403, "Contraseña incorrecta")
+    async with aiosqlite.connect("dj_request.db") as db:
+        cursor = await db.execute("SELECT cancion FROM solicitudes WHERE id=?", (solicitud_id,))
+        row = await cursor.fetchone()
+    if not row:
+        raise HTTPException(404, "No encontrada")
+    await manager.notify_user(solicitud_id, "next_song", row[0])
+    await manager.broadcast_to_dj({"tipo": "next_song_sent", "solicitud_id": solicitud_id})
+    return {"ok": True}
+
+# ─── WebSocket Usuario ────────────────────────────────────────────────
+@app.websocket("/ws/usuario/{solicitud_id}")
+async def ws_usuario(websocket: WebSocket, solicitud_id: int):
+    await manager.connect_user(websocket, solicitud_id)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect_user(websocket, solicitud_id)
 
 # ─── WebSocket DJ ─────────────────────────────────────────────────────
 @app.websocket("/ws/dj")

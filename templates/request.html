@@ -68,6 +68,12 @@
   .toast.error { background: #e74c3c; color: #fff; }
   .toast.show { transform: translateX(-50%) translateY(0); }
   .empty { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 0.9rem; }
+  .dj-notif { position: fixed; top: 0; left: 0; right: 0; z-index: 998; padding: 16px 20px; text-align: center; font-weight: 700; font-size: 0.95rem; transform: translateY(-100%); transition: transform .4s; }
+  .dj-notif.show { transform: translateY(0); }
+  .dj-notif.approved { background: #1a6b3a; color: #fff; }
+  .dj-notif.rejected { background: #8b1a1a; color: #fff; }
+  .dj-notif.played { background: #1DB954; color: #000; }
+  .dj-notif.nextsong { background: #b8960c; color: #000; }
 </style>
 </head>
 <body>
@@ -105,6 +111,7 @@
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="dj-notif" id="djNotif"></div>
 
 <script>
 const EVENTO_ID = {{ evento.id if evento else 0 }};
@@ -133,6 +140,30 @@ function onSearch(q) {
   if (q.length < 2) { document.getElementById('resultados').innerHTML = ''; return; }
   document.getElementById('spinner').style.display = 'block';
   searchTimer = setTimeout(() => buscar(q), 500);
+}
+
+let solicitudWS = null;
+
+function conectarWSSolicitud(solicitudId) {
+  if (solicitudWS) solicitudWS.close();
+  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  solicitudWS = new WebSocket(`${protocol}//${location.host}/ws/usuario/${solicitudId}`);
+  solicitudWS.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    const tipos = {
+      aprobada: { clase: 'approved', duracion: 5000 },
+      rechazada: { clase: 'rejected', duracion: 6000 },
+      reproducida: { clase: 'played', duracion: 6000 },
+      next_song: { clase: 'nextsong', duracion: 8000 }
+    };
+    const t = tipos[msg.tipo];
+    if (t) {
+      const n = document.getElementById('djNotif');
+      n.textContent = msg.mensaje;
+      n.className = `dj-notif show ${t.clase}`;
+      setTimeout(() => n.classList.remove('show'), t.duracion);
+    }
+  };
 }
 
 async function buscar(q) {
@@ -186,7 +217,8 @@ async function enviarSolicitud() {
   });
   const data = await res.json();
   if (res.ok) {
-    showToast('✅ ¡Solicitud enviada!');
+    showToast('✅ ¡Solicitud enviada! El DJ la revisará pronto');
+    conectarWSSolicitud(data.id);
     selectedTrack = null;
     document.getElementById('searchInput').value = '';
     document.getElementById('resultados').innerHTML = '';

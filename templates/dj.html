@@ -3,110 +3,190 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎧 Panel DJ</title>
+<title>DJ Panel — asong.live</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  :root { --green: #1DB954; --dark: #121212; --card: #1e1e1e; --card2: #2a2a2a; }
-  body { background: var(--dark); color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  :root {
+    --black: #0a0a0a; --white: #f5f5f0; --gray-100: #f0f0eb;
+    --gray-200: #e0e0d8; --gray-400: #999990; --gray-600: #555550;
+    --green: #1a6b3a; --green-light: #e8f5ee;
+    --red: #8b1a1a; --red-light: #fceaea;
+    --gold: #b8960c; --gold-light: #fdf8e6;
+    --blue: #1a3a6b; --blue-light: #e8eef5;
+  }
+  body { background: var(--gray-100); color: var(--black); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
 
-  /* Login */
-  #loginScreen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-  .login-card { background: var(--card); border-radius: 16px; padding: 36px; width: 100%; max-width: 380px; text-align: center; }
-  .login-card h1 { font-size: 2rem; margin-bottom: 8px; }
-  .login-card p { color: #888; margin-bottom: 24px; }
-  .login-card input { width: 100%; background: var(--card2); border: 2px solid #333; border-radius: 10px; padding: 13px; color: #fff; font-size: 1rem; outline: none; text-align: center; letter-spacing: 4px; margin-bottom: 12px; }
-  .login-card input:focus { border-color: var(--green); }
-  .btn { padding: 13px 24px; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all .2s; }
-  .btn-green { background: var(--green); color: #000; width: 100%; }
-  .btn-approve { background: #1DB954; color: #000; }
-  .btn-play { background: #3498db; color: #fff; }
-  .btn-reject { background: #e74c3c; color: #fff; }
-  .btn:hover { opacity: 0.85; }
+  /* LOGIN */
+  #loginScreen { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--black); }
+  .login-logo { font-family: 'Bebas Neue', sans-serif; font-size: 4rem; color: var(--white); letter-spacing: 4px; line-height: 1; margin-bottom: 8px; text-align: center; }
+  .login-sub { color: var(--gray-400); font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 48px; text-align: center; }
+  .login-card { background: var(--white); border-radius: 4px; padding: 40px; width: 320px; }
+  .login-card label { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-600); display: block; margin-bottom: 8px; }
+  .login-card input { width: 100%; border: 1.5px solid var(--gray-200); border-radius: 2px; padding: 12px 16px; font-family: 'DM Sans', sans-serif; font-size: 1rem; color: var(--black); outline: none; transition: border .2s; letter-spacing: 2px; text-align: center; }
+  .login-card input:focus { border-color: var(--black); }
+  .btn-login { width: 100%; margin-top: 16px; padding: 14px; background: var(--black); color: var(--white); border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: opacity .2s; }
+  .btn-login:hover { opacity: 0.8; }
+  .login-error { color: var(--red); font-size: 0.78rem; margin-top: 12px; display: none; text-align: center; }
 
-  /* Panel */
-  #djPanel { display: none; }
-  header { background: linear-gradient(135deg, #1DB954, #0f6b31); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
-  header h1 { font-size: 1.3rem; font-weight: 800; }
-  .ws-status { font-size: 0.75rem; padding: 5px 12px; border-radius: 20px; font-weight: 600; }
-  .ws-connected { background: rgba(0,0,0,0.3); color: #fff; }
-  .ws-disconnected { background: #e74c3c; color: #fff; }
+  /* PANEL */
+  #djPanel { display: none; min-height: 100vh; }
+  .dj-header { background: var(--black); color: var(--white); padding: 20px 32px; display: flex; align-items: center; gap: 20px; }
+  .dj-logo-area { display: flex; align-items: center; gap: 16px; flex: 1; }
+  .dj-logo-placeholder { width: 52px; height: 52px; border-radius: 4px; background: #1a1a1a; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+  .dj-logo-img { width: 52px; height: 52px; border-radius: 4px; object-fit: cover; border: 1px solid #333; display: none; }
+  .dj-event-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 2px; line-height: 1; }
+  .dj-subtitle { color: var(--gray-400); font-size: 0.75rem; letter-spacing: 1px; margin-top: 3px; }
+  .ws-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; transition: background .3s; }
+  .ws-dot.live { background: #4caf50; box-shadow: 0 0 8px #4caf50; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+  .ws-label { font-size: 0.72rem; letter-spacing: 1px; color: var(--gray-400); text-transform: uppercase; margin-left: 8px; }
 
-  .filters { display: flex; gap: 8px; padding: 14px; overflow-x: auto; }
-  .filter-btn { padding: 8px 16px; background: var(--card2); border: 2px solid #333; border-radius: 20px; color: #888; font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all .2s; }
-  .filter-btn.active { border-color: var(--green); color: var(--green); background: #1a3326; }
+  .stats-bar { background: var(--white); border-bottom: 1px solid var(--gray-200); padding: 0 32px; display: flex; }
+  .stat-item { padding: 16px 24px; border-right: 1px solid var(--gray-200); text-align: center; min-width: 100px; }
+  .stat-item:last-child { border-right: none; }
+  .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; line-height: 1; }
+  .stat-label { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-400); margin-top: 2px; }
 
-  .content { padding: 14px; }
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
-  .stat { background: var(--card2); border-radius: 10px; padding: 12px; text-align: center; }
-  .stat-num { font-size: 1.8rem; font-weight: 900; color: var(--green); }
-  .stat-label { font-size: 0.72rem; color: #888; margin-top: 2px; }
+  .main-content { display: flex; height: calc(100vh - 130px); }
+  .queue-panel { flex: 1; overflow-y: auto; padding: 24px; border-right: 1px solid var(--gray-200); }
+  .queue-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .queue-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: 2px; }
+  .filter-pills { display: flex; gap: 6px; }
+  .pill { padding: 5px 14px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; border: 1.5px solid var(--gray-200); background: transparent; color: var(--gray-400); cursor: pointer; transition: all .2s; }
+  .pill.active { background: var(--black); color: var(--white); border-color: var(--black); }
 
-  .song-card { background: var(--card2); border-radius: 14px; padding: 14px; margin-bottom: 10px; border-left: 4px solid #444; transition: all .3s; }
-  .song-card.pendiente { border-left-color: #888; }
-  .song-card.aprobada { border-left-color: var(--green); }
-  .song-card.nueva { animation: highlight .8s ease; }
-  @keyframes highlight { 0% { background: #1a3326; } 100% { background: var(--card2); } }
+  .song-card { background: var(--white); border-radius: 4px; border: 1.5px solid var(--gray-200); margin-bottom: 10px; overflow: hidden; transition: all .2s; animation: slideIn .3s ease; }
+  @keyframes slideIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+  .song-card:hover { border-color: var(--black); }
+  .song-inner { padding: 14px 16px; display: flex; gap: 14px; align-items: flex-start; }
+  .song-rank { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--gray-200); line-height: 1; min-width: 32px; text-align: center; margin-top: 4px; }
+  .song-cover { width: 56px; height: 56px; border-radius: 3px; object-fit: cover; flex-shrink: 0; }
+  .song-name { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .song-artist { color: var(--gray-600); font-size: 0.8rem; margin-top: 2px; }
+  .song-dedicatoria { background: var(--gray-100); border-left: 2px solid var(--gray-200); padding: 6px 10px; margin-top: 8px; font-size: 0.78rem; color: var(--gray-600); font-style: italic; border-radius: 0 2px 2px 0; }
+  .song-meta { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+  .votes-badge { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; background: var(--black); color: var(--white); border-radius: 20px; }
+  .status-badge { font-size: 0.65rem; font-weight: 600; padding: 2px 8px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; }
+  .status-pendiente { background: var(--gray-100); color: var(--gray-400); }
+  .status-aprobada { background: var(--green-light); color: var(--green); }
+  .song-actions { padding: 0 16px 14px 62px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .act-btn { padding: 7px 16px; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border: 1.5px solid; transition: all .15s; }
+  .act-approve { background: var(--green-light); color: var(--green); border-color: var(--green); }
+  .act-approve:hover { background: var(--green); color: var(--white); }
+  .act-play { background: var(--blue-light); color: var(--blue); border-color: var(--blue); }
+  .act-play:hover { background: var(--blue); color: var(--white); }
+  .act-reject { background: var(--red-light); color: var(--red); border-color: var(--red); }
+  .act-reject:hover { background: var(--red); color: var(--white); }
+  .act-next { background: var(--gold-light); color: var(--gold); border-color: var(--gold); }
+  .act-next:hover { background: var(--gold); color: var(--white); }
 
-  .song-top { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
-  .song-top img { width: 54px; height: 54px; border-radius: 8px; }
-  .song-top-info { flex: 1; }
-  .song-name { font-weight: 800; font-size: 1rem; }
-  .song-artist { color: #888; font-size: 0.82rem; margin-top: 2px; }
-  .song-meta { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
-  .votos-badge { background: #333; border-radius: 20px; padding: 2px 10px; font-size: 0.75rem; font-weight: 700; }
-  .dedicatoria { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 8px 10px; font-size: 0.82rem; color: #bbb; font-style: italic; margin-bottom: 10px; }
-  .song-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-  .song-actions .btn { padding: 8px 16px; font-size: 0.82rem; border-radius: 8px; }
+  .controls-panel { width: 300px; flex-shrink: 0; padding: 24px; overflow-y: auto; background: var(--white); border-left: 1px solid var(--gray-200); }
+  .ctrl-section { margin-bottom: 28px; }
+  .ctrl-title { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 2px; color: var(--gray-400); margin-bottom: 12px; border-bottom: 1px solid var(--gray-200); padding-bottom: 8px; }
+  .setup-field { margin-bottom: 12px; }
+  .setup-field label { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-400); display: block; margin-bottom: 5px; }
+  .setup-field input { width: 100%; border: 1.5px solid var(--gray-200); border-radius: 2px; padding: 9px 12px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--black); outline: none; transition: border .2s; }
+  .setup-field input:focus { border-color: var(--black); }
+  .btn-save { width: 100%; padding: 10px; background: var(--black); color: var(--white); border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; margin-top: 4px; transition: opacity .2s; }
+  .btn-save:hover { opacity: 0.75; }
 
-  .empty { text-align: center; color: #555; padding: 50px 20px; font-size: 0.9rem; }
-  .notification { position: fixed; top: 20px; right: 20px; background: var(--green); color: #000; padding: 14px 20px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; transform: translateX(200%); transition: transform .3s; z-index: 999; max-width: 280px; }
-  .notification.show { transform: translateX(0); }
+  .tip-btn { width: 100%; padding: 12px 16px; border-radius: 3px; border: 1.5px solid var(--gray-200); background: var(--gray-100); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all .2s; margin-bottom: 8px; font-family: 'DM Sans', sans-serif; }
+  .tip-btn:hover { border-color: var(--black); background: var(--gray-100); }
+  .tip-icon { font-size: 1.3rem; }
+  .tip-name { font-weight: 700; font-size: 0.85rem; }
+  .tip-handle { font-size: 0.72rem; color: var(--gray-400); }
+
+  .empty { text-align: center; padding: 60px 20px; color: var(--gray-400); }
+  .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+  .empty-text { font-size: 0.85rem; letter-spacing: 1px; }
+
+  .notif { position: fixed; top: 20px; right: 20px; z-index: 999; background: var(--black); color: var(--white); padding: 14px 20px; border-radius: 3px; font-size: 0.85rem; font-weight: 600; transform: translateX(120%); transition: transform .3s; max-width: 280px; border-left: 3px solid var(--white); }
+  .notif.show { transform: translateX(0); }
+  .notif.success { border-left-color: #4caf50; }
+  .notif.warning { border-left-color: var(--gold); }
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="loginScreen">
-  <div class="login-card">
-    <div style="font-size:3rem; margin-bottom:12px">🎧</div>
-    <h1>Panel DJ</h1>
-    <p>Ingresa tu contraseña</p>
-    <input type="password" id="pwdInput" placeholder="••••••" onkeydown="if(event.key==='Enter')login()">
-    <button class="btn btn-green" onclick="login()">Entrar al panel</button>
-    <p id="loginError" style="color:#e74c3c; font-size:0.8rem; margin-top:10px; display:none">Contraseña incorrecta</p>
-  </div>
-</div>
-
-<!-- PANEL -->
-<div id="djPanel">
-  <header>
-    <h1>🎧 DJ Panel</h1>
-    <span class="ws-status ws-disconnected" id="wsStatus">⚡ Conectando...</span>
-  </header>
-
-  <div class="filters">
-    <button class="filter-btn active" onclick="setFilter('todas', this)">🎵 Todas</button>
-    <button class="filter-btn" onclick="setFilter('pendiente', this)">⏳ Pendientes</button>
-    <button class="filter-btn" onclick="setFilter('aprobada', this)">✅ Aprobadas</button>
-  </div>
-
-  <div class="content">
-    <div class="stats">
-      <div class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total</div></div>
-      <div class="stat"><div class="stat-num" id="statPendientes">0</div><div class="stat-label">Pendientes</div></div>
-      <div class="stat"><div class="stat-num" id="statVotos">0</div><div class="stat-label">Votos</div></div>
+  <div>
+    <div class="login-logo">asong.live</div>
+    <div class="login-sub">DJ Control Panel</div>
+    <div class="login-card">
+      <label>Contraseña</label>
+      <input type="password" id="pwdInput" placeholder="••••••" onkeydown="if(event.key==='Enter')login()">
+      <button class="btn-login" onclick="login()">Entrar</button>
+      <p class="login-error" id="loginError">Contraseña incorrecta</p>
     </div>
-    <div id="solicitudesContainer"><div class="empty">Cargando...</div></div>
   </div>
 </div>
 
-<div class="notification" id="notification"></div>
+<div id="djPanel">
+  <div class="dj-header">
+    <div class="dj-logo-area">
+      <div class="dj-logo-placeholder" id="logoPlaceholder">🎧</div>
+      <img class="dj-logo-img" id="logoImg" src="" alt="">
+      <div>
+        <div class="dj-event-name" id="headerEventName">Mi Evento</div>
+        <div class="dj-subtitle" id="headerSubtitle">asong.live — DJ Request System</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center">
+      <div class="ws-dot" id="wsDot"></div>
+      <span class="ws-label" id="wsLabel">Conectando</span>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total</div></div>
+    <div class="stat-item"><div class="stat-num" id="statPendientes">0</div><div class="stat-label">Pendientes</div></div>
+    <div class="stat-item"><div class="stat-num" id="statAprobadas">0</div><div class="stat-label">Aprobadas</div></div>
+    <div class="stat-item"><div class="stat-num" id="statVotos">0</div><div class="stat-label">Votos</div></div>
+  </div>
+
+  <div class="main-content">
+    <div class="queue-panel">
+      <div class="queue-header">
+        <div class="queue-title">Cola de Solicitudes</div>
+        <div class="filter-pills">
+          <button class="pill active" onclick="setFilter('todas',this)">Todas</button>
+          <button class="pill" onclick="setFilter('pendiente',this)">Pendientes</button>
+          <button class="pill" onclick="setFilter('aprobada',this)">Aprobadas</button>
+        </div>
+      </div>
+      <div id="queueContainer"><div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">Sin solicitudes aún</div></div></div>
+    </div>
+
+    <div class="controls-panel">
+      <div class="ctrl-section">
+        <div class="ctrl-title">Personalización</div>
+        <div class="setup-field"><label>Nombre del evento</label><input type="text" id="cfgEventName" placeholder="Ej: Boda de María" oninput="updateHeader()"></div>
+        <div class="setup-field"><label>Subtítulo / Slogan</label><input type="text" id="cfgSubtitle" placeholder="Ej: La música más cool" oninput="updateHeader()"></div>
+        <div class="setup-field"><label>URL del logo</label><input type="text" id="cfgLogo" placeholder="https://..." oninput="updateLogo()"></div>
+      </div>
+      <div class="ctrl-section">
+        <div class="ctrl-title">Links de Propina</div>
+        <div class="setup-field"><label>Cash App ($cashtag)</label><input type="text" id="cfgCashapp" placeholder="$tuusuario"></div>
+        <div class="setup-field"><label>Venmo (@usuario)</label><input type="text" id="cfgVenmo" placeholder="@tuusuario"></div>
+        <div class="setup-field"><label>Apple Pay (email)</label><input type="text" id="cfgApplepay" placeholder="tu@email.com"></div>
+        <button class="btn-save" onclick="saveConfig()">Guardar configuración</button>
+      </div>
+      <div class="ctrl-section" id="tipSection" style="display:none">
+        <div class="ctrl-title">Recibir Propina</div>
+        <button class="tip-btn" id="btnCashapp" onclick="abrirPropina('cashapp')" style="display:none"><span class="tip-icon">💵</span><div><div class="tip-name">Cash App</div><div class="tip-handle" id="labelCashapp"></div></div></button>
+        <button class="tip-btn" id="btnVenmo" onclick="abrirPropina('venmo')" style="display:none"><span class="tip-icon">💙</span><div><div class="tip-name">Venmo</div><div class="tip-handle" id="labelVenmo"></div></div></button>
+        <button class="tip-btn" id="btnApplepay" onclick="abrirPropina('applepay')" style="display:none"><span class="tip-icon">🍎</span><div><div class="tip-name">Apple Pay</div><div class="tip-handle" id="labelApplepay"></div></div></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
 
 <script>
-let PASSWORD = '';
-let solicitudes = [];
-let filtroActual = 'todas';
-let ws;
+let PASSWORD='', solicitudes=[], filtro='todas', ws;
+let config = JSON.parse(localStorage.getItem('djConfig')||'{}');
 
 async function login() {
   const pwd = document.getElementById('pwdInput').value;
@@ -116,103 +196,118 @@ async function login() {
     solicitudes = await res.json();
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('djPanel').style.display = 'block';
-    renderSolicitudes();
-    conectarWS();
-  } else {
-    document.getElementById('loginError').style.display = 'block';
-  }
+    loadConfig(); renderQueue(); conectarWS();
+  } else { document.getElementById('loginError').style.display = 'block'; }
+}
+
+function loadConfig() {
+  if (config.eventName) document.getElementById('cfgEventName').value = config.eventName;
+  if (config.subtitle) document.getElementById('cfgSubtitle').value = config.subtitle;
+  if (config.logo) document.getElementById('cfgLogo').value = config.logo;
+  if (config.cashapp) document.getElementById('cfgCashapp').value = config.cashapp;
+  if (config.venmo) document.getElementById('cfgVenmo').value = config.venmo;
+  if (config.applepay) document.getElementById('cfgApplepay').value = config.applepay;
+  updateHeader(); updateLogo(); updateTipButtons();
+}
+
+function saveConfig() {
+  config = {
+    eventName: document.getElementById('cfgEventName').value,
+    subtitle: document.getElementById('cfgSubtitle').value,
+    logo: document.getElementById('cfgLogo').value,
+    cashapp: document.getElementById('cfgCashapp').value,
+    venmo: document.getElementById('cfgVenmo').value,
+    applepay: document.getElementById('cfgApplepay').value,
+  };
+  localStorage.setItem('djConfig', JSON.stringify(config));
+  updateHeader(); updateLogo(); updateTipButtons();
+  showNotif('✅ Configuración guardada', 'success');
+}
+
+function updateHeader() {
+  document.getElementById('headerEventName').textContent = document.getElementById('cfgEventName').value || 'Mi Evento';
+  document.getElementById('headerSubtitle').textContent = document.getElementById('cfgSubtitle').value || 'asong.live — DJ Request System';
+}
+
+function updateLogo() {
+  const url = document.getElementById('cfgLogo').value;
+  const img = document.getElementById('logoImg');
+  const ph = document.getElementById('logoPlaceholder');
+  if (url) { img.src = url; img.style.display='block'; ph.style.display='none'; }
+  else { img.style.display='none'; ph.style.display='flex'; }
+}
+
+function updateTipButtons() {
+  const ca = config.cashapp||'', ve = config.venmo||'', ap = config.applepay||'';
+  document.getElementById('tipSection').style.display = (ca||ve||ap) ? 'block' : 'none';
+  if (ca) { document.getElementById('btnCashapp').style.display='flex'; document.getElementById('labelCashapp').textContent=ca; }
+  if (ve) { document.getElementById('btnVenmo').style.display='flex'; document.getElementById('labelVenmo').textContent=ve; }
+  if (ap) { document.getElementById('btnApplepay').style.display='flex'; document.getElementById('labelApplepay').textContent=ap; }
+}
+
+function abrirPropina(tipo) {
+  const links = { cashapp:`https://cash.app/${config.cashapp}`, venmo:`https://venmo.com/${(config.venmo||'').replace('@','')}`, applepay:`https://pay.apple.com/` };
+  window.open(links[tipo],'_blank');
 }
 
 function conectarWS() {
-  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const protocol = location.protocol==='https:'?'wss:':'ws:';
   ws = new WebSocket(`${protocol}//${location.host}/ws/dj`);
-  ws.onopen = () => {
-    document.getElementById('wsStatus').textContent = '🟢 En vivo';
-    document.getElementById('wsStatus').className = 'ws-status ws-connected';
-  };
-  ws.onclose = () => {
-    document.getElementById('wsStatus').textContent = '🔴 Desconectado';
-    document.getElementById('wsStatus').className = 'ws-status ws-disconnected';
-    setTimeout(conectarWS, 3000);
-  };
+  ws.onopen = () => { document.getElementById('wsDot').classList.add('live'); document.getElementById('wsLabel').textContent='En vivo'; };
+  ws.onclose = () => { document.getElementById('wsDot').classList.remove('live'); document.getElementById('wsLabel').textContent='Reconectando'; setTimeout(conectarWS,3000); };
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
-    if (msg.tipo === 'nueva_solicitud') {
-      solicitudes.unshift(msg.solicitud);
-      renderSolicitudes();
-      showNotification(`🎵 Nueva solicitud: ${msg.solicitud.cancion}`);
-    } else if (msg.tipo === 'voto') {
-      const s = solicitudes.find(x => x.id === msg.solicitud_id);
-      if (s) { s.votos = msg.votos; renderSolicitudes(); }
-    } else if (msg.tipo === 'estado_actualizado') {
-      const s = solicitudes.find(x => x.id === msg.solicitud_id);
-      if (s) { s.estado = msg.estado; renderSolicitudes(); }
-    }
+    if (msg.tipo==='nueva_solicitud') { solicitudes.unshift(msg.solicitud); renderQueue(); showNotif(`🎵 ${msg.solicitud.cancion} — ${msg.solicitud.artista}`,'success'); }
+    else if (msg.tipo==='voto') { const s=solicitudes.find(x=>x.id===msg.solicitud_id); if(s){s.votos=msg.votos;renderQueue();} }
+    else if (msg.tipo==='estado_actualizado') { const s=solicitudes.find(x=>x.id===msg.solicitud_id); if(s){s.estado=msg.estado;renderQueue();} }
   };
 }
 
-function setFilter(f, btn) {
-  filtroActual = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderSolicitudes();
-}
+function setFilter(f,btn) { filtro=f; document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active')); btn.classList.add('active'); renderQueue(); }
 
-function renderSolicitudes() {
-  const filtered = filtroActual === 'todas'
-    ? solicitudes.filter(s => s.estado !== 'reproducida' && s.estado !== 'rechazada')
-    : solicitudes.filter(s => s.estado === filtroActual);
-
-  const sorted = [...filtered].sort((a,b) => b.votos - a.votos);
-
+function renderQueue() {
+  const filtered = filtro==='todas' ? solicitudes.filter(s=>s.estado!=='reproducida'&&s.estado!=='rechazada') : solicitudes.filter(s=>s.estado===filtro);
+  const sorted = [...filtered].sort((a,b)=>b.votos-a.votos);
   document.getElementById('statTotal').textContent = solicitudes.length;
   document.getElementById('statPendientes').textContent = solicitudes.filter(s=>s.estado==='pendiente').length;
-  document.getElementById('statVotos').textContent = solicitudes.reduce((acc,s)=>acc+s.votos,0);
-
-  const c = document.getElementById('solicitudesContainer');
-  if (!sorted.length) { c.innerHTML = '<div class="empty">🎧 Sin solicitudes en esta categoría</div>'; return; }
-
-  c.innerHTML = sorted.map(s => `
-    <div class="song-card ${s.estado}" id="card-${s.id}">
-      <div class="song-top">
-        <img src="${s.portada_url || 'https://via.placeholder.com/54'}" alt="">
-        <div class="song-top-info">
+  document.getElementById('statAprobadas').textContent = solicitudes.filter(s=>s.estado==='aprobada').length;
+  document.getElementById('statVotos').textContent = solicitudes.reduce((a,s)=>a+s.votos,0);
+  const c = document.getElementById('queueContainer');
+  if (!sorted.length) { c.innerHTML='<div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">Sin solicitudes</div></div>'; return; }
+  c.innerHTML = sorted.map((s,i) => `
+    <div class="song-card" id="card-${s.id}">
+      <div class="song-inner">
+        <div class="song-rank">${String(i+1).padStart(2,'0')}</div>
+        <img class="song-cover" src="${s.portada_url||'https://via.placeholder.com/56'}" alt="">
+        <div style="flex:1;min-width:0">
           <div class="song-name">${s.cancion}</div>
           <div class="song-artist">${s.artista}</div>
-          <div class="song-meta">
-            <span class="votos-badge">🔥 ${s.votos} votos</span>
-            <span style="font-size:0.7rem; color:#666">${s.estado}</span>
-          </div>
+          ${s.dedicatoria?`<div class="song-dedicatoria">💬 "${s.dedicatoria}"</div>`:''}
+          <div class="song-meta"><span class="votes-badge">🔥 ${s.votos}</span><span class="status-badge status-${s.estado}">${s.estado}</span></div>
         </div>
       </div>
-      ${s.dedicatoria ? `<div class="dedicatoria">💬 "${s.dedicatoria}"</div>` : ''}
       <div class="song-actions">
-        ${s.estado === 'pendiente' ? `<button class="btn btn-approve" onclick="actualizar(${s.id},'aprobada')">✅ Aprobar</button>` : ''}
-        <button class="btn btn-play" onclick="actualizar(${s.id},'reproducida')">▶️ Reproducida</button>
-        <button class="btn btn-reject" onclick="actualizar(${s.id},'rechazada')">❌ Rechazar</button>
+        ${s.estado==='pendiente'?`<button class="act-btn act-approve" onclick="actualizar(${s.id},'aprobada')">✓ Aprobar</button>`:''}
+        <button class="act-btn act-next" onclick="enviarNextSong(${s.id},'${s.cancion.replace(/'/g,"\\'")}')">⚡ Next Song</button>
+        <button class="act-btn act-play" onclick="actualizar(${s.id},'reproducida')">▶ Reproducida</button>
+        <button class="act-btn act-reject" onclick="actualizar(${s.id},'rechazada')">✕ Rechazar</button>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
 async function actualizar(id, estado) {
-  const res = await fetch(`/api/dj/actualizar/${id}`, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ password: PASSWORD, estado })
-  });
-  if (res.ok) {
-    const s = solicitudes.find(x => x.id === id);
-    if (s) s.estado = estado;
-    renderSolicitudes();
-  }
+  const res = await fetch(`/api/dj/actualizar/${id}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:PASSWORD,estado}) });
+  if (res.ok) { const s=solicitudes.find(x=>x.id===id); if(s)s.estado=estado; renderQueue(); }
 }
 
-function showNotification(msg) {
-  const n = document.getElementById('notification');
-  n.textContent = msg;
-  n.classList.add('show');
-  setTimeout(() => n.classList.remove('show'), 4000);
+async function enviarNextSong(id, cancion) {
+  const res = await fetch(`/api/dj/next-song/${id}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:PASSWORD}) });
+  if (res.ok) showNotif(`⚡ Next Song enviado: ${cancion}`,'warning');
+}
+
+function showNotif(msg,type='') {
+  const n=document.getElementById('notif'); n.textContent=msg; n.className=`notif show ${type}`;
+  setTimeout(()=>n.classList.remove('show'),4000);
 }
 </script>
 </body>
