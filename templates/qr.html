@@ -22,7 +22,7 @@
   .url-bar { background:#0a0a0a; color:#FF6B2B; border-radius:6px; padding:10px 16px; font-family:'Bebas Neue',monospace; font-size:1.1rem; letter-spacing:2px; margin-bottom:20px; }
   .steps { display:flex; justify-content:center; gap:20px; margin-bottom:24px; }
   .step { display:flex; flex-direction:column; align-items:center; gap:6px; flex:1; max-width:100px; }
-  .step-icon { width:40px; height:40px; background:#0a0a0a; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+  .step-icon { width:44px; height:44px; background:#fff3ee; border-radius:50%; border:2px solid #FF6B2B; display:flex; align-items:center; justify-content:center; }
   .step-text { font-size:0.65rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#555; text-align:center; line-height:1.3; }
   .bottom-bar { display:flex; align-items:center; justify-content:space-between; border-top:1px solid #e0e0d8; padding-top:16px; }
   .powered { font-size:0.65rem; color:#aaa; letter-spacing:2px; text-transform:uppercase; }
@@ -66,9 +66,9 @@
   <div class="instruction-sub" id="instructionSub">No app needed — just your phone camera</div>
   <div class="url-bar">{{ base_url }}</div>
   <div class="steps">
-    <div class="step"><div class="step-icon">📷</div><div class="step-text" id="step1">Scan QR</div></div>
-    <div class="step"><div class="step-icon">🎵</div><div class="step-text" id="step2">Search Song</div></div>
-    <div class="step"><div class="step-icon">🔥</div><div class="step-text" id="step3">Send Request</div></div>
+    <div class="step"><div class="step-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#FF6B2B" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="4" height="4" rx="0.5"/></svg></div><div class="step-text" id="step1">Scan QR</div></div>
+    <div class="step"><div class="step-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#FF6B2B" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg></div><div class="step-text" id="step2">Search Song</div></div>
+    <div class="step"><div class="step-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#FF6B2B" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div><div class="step-text" id="step3">Send Request</div></div>
   </div>
   <div class="bottom-bar">
     <div class="powered">Powered by asong.live</div>
