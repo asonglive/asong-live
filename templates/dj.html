@@ -31,8 +31,8 @@
 
   /* PANEL */
   #djPanel { display: none; min-height: 100vh; }
-  .dj-header { background: var(--black); color: var(--white); padding: 20px 32px; display: flex; align-items: center; gap: 20px; }
-  .dj-logo-area { display: flex; align-items: center; gap: 16px; flex: 1; }
+  .dj-header { background: var(--black); color: var(--white); padding: 16px 24px; display: flex; align-items: center; gap: 16px; }
+  .dj-logo-area { display: flex; align-items: center; gap: 20px; flex: 1; min-width: 0; }
   .dj-logo-placeholder { width: 52px; height: 52px; border-radius: 4px; background: #1a1a1a; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
   .dj-logo-img { width: 52px; height: 52px; border-radius: 4px; object-fit: cover; border: 1px solid #333; display: none; }
   .dj-event-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 2px; line-height: 1; }
@@ -105,13 +105,50 @@
   .notif.show { transform: translateX(0); }
   .notif.success { border-left-color: #4caf50; }
   .notif.warning { border-left-color: var(--gold); }
+
+  /* ── TABLET MODE ── */
+  .drawer-btn { display: none; }
+  .drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; }
+  .drawer-overlay.show { display: block; }
+  .drawer { position: fixed; right: -340px; top: 0; bottom: 0; width: 320px; background: var(--white); z-index: 201; transition: right .3s; overflow-y: auto; padding: 24px; border-left: 1px solid var(--gray-200); }
+  .drawer.show { right: 0; }
+  .drawer-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--gray-400); }
+
+  @media (max-width: 900px) {
+    .controls-panel { display: none; }
+    .drawer-btn { display: flex; align-items: center; gap: 8px; background: var(--white); border: 1.5px solid var(--gray-200); border-radius: 3px; padding: 8px 14px; font-family: "DM Sans", sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all .2s; }
+    .drawer-btn:hover { border-color: var(--black); }
+    .dj-header { padding: 14px 16px; }
+    .dj-event-name { font-size: 1.3rem; }
+    .stat-item { padding: 12px 16px; min-width: 70px; }
+    .stat-num { font-size: 1.6rem; }
+    .stat-label { font-size: 0.6rem; }
+    .queue-panel { padding: 16px; }
+    .main-content { height: calc(100vh - 120px); }
+    .queue-header { flex-wrap: wrap; gap: 8px; }
+  }
+
+  @media (max-width: 600px) {
+    .stat-item { padding: 10px 10px; min-width: 60px; }
+    .stat-num { font-size: 1.4rem; }
+    .stats-bar { padding: 0 16px; }
+  }
 </style>
 </head>
 <body>
 
 <div id="loginScreen">
   <div>
-    <div class="login-logo">asong.live</div>
+    <div style="margin-bottom:20px"><div style="display:flex;align-items:center;gap:14px;justify-content:center">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 60" width="28" height="42">
+    <rect x="0" y="15" width="4" height="30" fill="#FF6B2B" rx="2" opacity="0.4"/>
+    <rect x="8" y="8" width="4" height="44" fill="#FF6B2B" rx="2" opacity="0.7"/>
+    <rect x="16" y="0" width="4" height="60" fill="#FF6B2B" rx="2"/>
+    <rect x="24" y="10" width="4" height="40" fill="#FF6B2B" rx="2" opacity="0.7"/>
+    <rect x="32" y="20" width="4" height="20" fill="#FF6B2B" rx="2" opacity="0.4"/>
+  </svg>
+  <span style="font-family:'Bebas Neue','Arial Black',sans-serif;font-size:2.8rem;letter-spacing:3px;color:#f5f5f0;line-height:1">asong<span style="color:#FF6B2B">.live</span></span>
+</div></div>
     <div class="login-sub">DJ Control Panel</div>
     <div class="login-card">
       <label>Contraseña</label>
@@ -125,7 +162,16 @@
 <div id="djPanel">
   <div class="dj-header">
     <div class="dj-logo-area">
-      <div class="dj-logo-placeholder" id="logoPlaceholder">🎧</div>
+      <div id="logoPlaceholder" style="background:transparent;border:none;padding:0;flex-shrink:0"><div style="display:flex;align-items:center;gap:10px">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 60" width="20" height="30">
+    <rect x="0" y="15" width="4" height="30" fill="#FF6B2B" rx="2" opacity="0.4"/>
+    <rect x="8" y="8" width="4" height="44" fill="#FF6B2B" rx="2" opacity="0.7"/>
+    <rect x="16" y="0" width="4" height="60" fill="#FF6B2B" rx="2"/>
+    <rect x="24" y="10" width="4" height="40" fill="#FF6B2B" rx="2" opacity="0.7"/>
+    <rect x="32" y="20" width="4" height="20" fill="#FF6B2B" rx="2" opacity="0.4"/>
+  </svg>
+  <span style="font-family:'Bebas Neue','Arial Black',sans-serif;font-size:1.6rem;letter-spacing:2px;color:#f5f5f0;line-height:1">asong<span style="color:#FF6B2B">.live</span></span>
+</div></div>
       <img class="dj-logo-img" id="logoImg" src="" alt="">
       <div>
         <div class="dj-event-name" id="headerEventName">Mi Evento</div>
@@ -149,10 +195,13 @@
     <div class="queue-panel">
       <div class="queue-header">
         <div class="queue-title">Cola de Solicitudes</div>
-        <div class="filter-pills">
-          <button class="pill active" onclick="setFilter('todas',this)">Todas</button>
-          <button class="pill" onclick="setFilter('pendiente',this)">Pendientes</button>
-          <button class="pill" onclick="setFilter('aprobada',this)">Aprobadas</button>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <div class="filter-pills">
+            <button class="pill active" onclick="setFilter('todas',this)">Todas</button>
+            <button class="pill" onclick="setFilter('pendiente',this)">Pendientes</button>
+            <button class="pill" onclick="setFilter('aprobada',this)">Aprobadas</button>
+          </div>
+          <button class="drawer-btn" onclick="openDrawer()">⚙️ Config</button>
         </div>
       </div>
       <div id="queueContainer"><div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">Sin solicitudes aún</div></div></div>
@@ -167,13 +216,14 @@
       </div>
       <div class="ctrl-section">
         <div class="ctrl-title">Links de Propina</div>
+        <div class="setup-field"><label>Texto del botón</label><input type="text" id="cfgLoveText" placeholder="Show Your Love 💛"></div>
         <div class="setup-field"><label>Cash App ($cashtag)</label><input type="text" id="cfgCashapp" placeholder="$tuusuario"></div>
         <div class="setup-field"><label>Venmo (@usuario)</label><input type="text" id="cfgVenmo" placeholder="@tuusuario"></div>
         <div class="setup-field"><label>Apple Pay (email)</label><input type="text" id="cfgApplepay" placeholder="tu@email.com"></div>
         <button class="btn-save" onclick="saveConfig()">Guardar configuración</button>
       </div>
       <div class="ctrl-section" id="tipSection" style="display:none">
-        <div class="ctrl-title">Recibir Propina</div>
+        <div class="ctrl-title" id="tipTitle">💛 Show Your Love</div>
         <button class="tip-btn" id="btnCashapp" onclick="abrirPropina('cashapp')" style="display:none"><span class="tip-icon">💵</span><div><div class="tip-name">Cash App</div><div class="tip-handle" id="labelCashapp"></div></div></button>
         <button class="tip-btn" id="btnVenmo" onclick="abrirPropina('venmo')" style="display:none"><span class="tip-icon">💙</span><div><div class="tip-name">Venmo</div><div class="tip-handle" id="labelVenmo"></div></div></button>
         <button class="tip-btn" id="btnApplepay" onclick="abrirPropina('applepay')" style="display:none"><span class="tip-icon">🍎</span><div><div class="tip-name">Apple Pay</div><div class="tip-handle" id="labelApplepay"></div></div></button>
@@ -182,6 +232,26 @@
   </div>
 </div>
 
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  <div style="margin-top:32px">
+    <div class="ctrl-section">
+      <div class="ctrl-title">Personalización</div>
+      <div class="setup-field"><label>Nombre del evento</label><input type="text" id="cfgEventName2" placeholder="Ej: Boda de María" oninput="syncConfig('cfgEventName','cfgEventName2',this)"></div>
+      <div class="setup-field"><label>Subtítulo / Slogan</label><input type="text" id="cfgSubtitle2" placeholder="Ej: La música más cool" oninput="syncConfig('cfgSubtitle','cfgSubtitle2',this)"></div>
+      <div class="setup-field"><label>URL del logo</label><input type="text" id="cfgLogo2" placeholder="https://..." oninput="syncConfig('cfgLogo','cfgLogo2',this)"></div>
+    </div>
+    <div class="ctrl-section">
+      <div class="ctrl-title">Show Your Love 💛</div>
+      <div class="setup-field"><label>Texto del botón</label><input type="text" id="cfgLoveText2" placeholder="Show Your Love 💛" oninput="syncConfig('cfgLoveText','cfgLoveText2',this)"></div>
+      <div class="setup-field"><label>Cash App ($cashtag)</label><input type="text" id="cfgCashapp2" placeholder="$tuusuario" oninput="syncConfig('cfgCashapp','cfgCashapp2',this)"></div>
+      <div class="setup-field"><label>Venmo (@usuario)</label><input type="text" id="cfgVenmo2" placeholder="@tuusuario" oninput="syncConfig('cfgVenmo','cfgVenmo2',this)"></div>
+      <div class="setup-field"><label>Apple Pay (email)</label><input type="text" id="cfgApplepay2" placeholder="tu@email.com" oninput="syncConfig('cfgApplepay','cfgApplepay2',this)"></div>
+      <button class="btn-save" onclick="saveConfig()">Guardar configuración</button>
+    </div>
+  </div>
+</div>
 <div class="notif" id="notif"></div>
 
 <script>
@@ -200,28 +270,47 @@ async function login() {
   } else { document.getElementById('loginError').style.display = 'block'; }
 }
 
-function loadConfig() {
-  if (config.eventName) document.getElementById('cfgEventName').value = config.eventName;
-  if (config.subtitle) document.getElementById('cfgSubtitle').value = config.subtitle;
-  if (config.logo) document.getElementById('cfgLogo').value = config.logo;
-  if (config.cashapp) document.getElementById('cfgCashapp').value = config.cashapp;
-  if (config.venmo) document.getElementById('cfgVenmo').value = config.venmo;
-  if (config.applepay) document.getElementById('cfgApplepay').value = config.applepay;
+async function loadConfig() {
+  try {
+    const res = await fetch('/api/dj/config?password=' + encodeURIComponent(PASSWORD));
+    if (res.ok) {
+      const cfg = await res.json();
+      document.getElementById('cfgEventName').value = cfg.event_name || '';
+      document.getElementById('cfgSubtitle').value = cfg.subtitle || '';
+      document.getElementById('cfgLogo').value = cfg.logo_url || '';
+      document.getElementById('cfgCashapp').value = cfg.cashapp || '';
+      document.getElementById('cfgVenmo').value = cfg.venmo || '';
+      document.getElementById('cfgApplepay').value = cfg.applepay || '';
+      document.getElementById('cfgLoveText').value = cfg.love_text || 'Show Your Love';
+      config = { eventName: cfg.event_name, subtitle: cfg.subtitle, logo: cfg.logo_url, cashapp: cfg.cashapp, venmo: cfg.venmo, applepay: cfg.applepay, loveText: cfg.love_text };
+    }
+  } catch(e) { console.log('Config load error:', e); }
   updateHeader(); updateLogo(); updateTipButtons();
 }
 
-function saveConfig() {
-  config = {
-    eventName: document.getElementById('cfgEventName').value,
+async function saveConfig() {
+  const newConfig = {
+    password: PASSWORD,
+    event_name: document.getElementById('cfgEventName').value,
     subtitle: document.getElementById('cfgSubtitle').value,
-    logo: document.getElementById('cfgLogo').value,
+    logo_url: document.getElementById('cfgLogo').value,
     cashapp: document.getElementById('cfgCashapp').value,
     venmo: document.getElementById('cfgVenmo').value,
     applepay: document.getElementById('cfgApplepay').value,
+    love_text: document.getElementById('cfgLoveText').value || 'Show Your Love',
   };
-  localStorage.setItem('djConfig', JSON.stringify(config));
-  updateHeader(); updateLogo(); updateTipButtons();
-  showNotif('✅ Configuración guardada', 'success');
+  const res = await fetch('/api/dj/config', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(newConfig)
+  });
+  if (res.ok) {
+    config = { eventName: newConfig.event_name, subtitle: newConfig.subtitle, logo: newConfig.logo_url, cashapp: newConfig.cashapp, venmo: newConfig.venmo, applepay: newConfig.applepay, loveText: newConfig.love_text };
+    updateHeader(); updateLogo(); updateTipButtons();
+    showNotif('✅ Configuración guardada', 'success');
+  } else {
+    showNotif('❌ Error al guardar', '');
+  }
 }
 
 function updateHeader() {
@@ -240,6 +329,8 @@ function updateLogo() {
 function updateTipButtons() {
   const ca = config.cashapp||'', ve = config.venmo||'', ap = config.applepay||'';
   document.getElementById('tipSection').style.display = (ca||ve||ap) ? 'block' : 'none';
+  const tipTitle = document.getElementById('tipTitle');
+  if (tipTitle) tipTitle.textContent = '💛 ' + (config.loveText || 'Show Your Love');
   if (ca) { document.getElementById('btnCashapp').style.display='flex'; document.getElementById('labelCashapp').textContent=ca; }
   if (ve) { document.getElementById('btnVenmo').style.display='flex'; document.getElementById('labelVenmo').textContent=ve; }
   if (ap) { document.getElementById('btnApplepay').style.display='flex'; document.getElementById('labelApplepay').textContent=ap; }
@@ -248,6 +339,28 @@ function updateTipButtons() {
 function abrirPropina(tipo) {
   const links = { cashapp:`https://cash.app/${config.cashapp}`, venmo:`https://venmo.com/${(config.venmo||'').replace('@','')}`, applepay:`https://pay.apple.com/` };
   window.open(links[tipo],'_blank');
+}
+
+function openDrawer() {
+  // Sincronizar valores del panel derecho al drawer
+  ['EventName','Subtitle','Logo','Cashapp','Venmo','Applepay','LoveText'].forEach(f => {
+    const src = document.getElementById('cfg'+f);
+    const dst = document.getElementById('cfg'+f+'2');
+    if (src && dst) dst.value = src.value;
+  });
+  document.getElementById('drawer').classList.add('show');
+  document.getElementById('drawerOverlay').classList.add('show');
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('show');
+  document.getElementById('drawerOverlay').classList.remove('show');
+}
+
+function syncConfig(mainId, drawerId, el) {
+  const other = el.id === mainId ? document.getElementById(drawerId) : document.getElementById(mainId);
+  if (other) other.value = el.value;
+  updateHeader(); updateLogo(); updateTipButtons();
 }
 
 function conectarWS() {
