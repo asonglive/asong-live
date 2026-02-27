@@ -224,6 +224,55 @@ async def dj_actualizar(solicitud_id: int, data: dict):
             await manager.notify_user(solicitud_id, nuevo_estado, row[0])
     return {"ok": True}
 
+
+# ─── Configuracion DJ ─────────────────────────────────────────────────────────
+@app.get("/api/dj/config")
+async def get_config(password: str):
+    if password != DJ_PASSWORD:
+        raise HTTPException(403, "Contraseña incorrecta")
+    async with aiosqlite.connect("dj_request.db") as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute("SELECT * FROM configuracion WHERE evento_id=1")
+        config = await cursor.fetchone()
+        if not config:
+            return {"event_name": "Mi Evento", "subtitle": "", "logo_url": "", "cashapp": "", "venmo": "", "applepay": "", "love_text": "Show Your Love"}
+        return dict(config)
+
+@app.post("/api/dj/config")
+async def save_config(data: dict):
+    if data.get("password") != DJ_PASSWORD:
+        raise HTTPException(403, "Contraseña incorrecta")
+    async with aiosqlite.connect("dj_request.db") as db:
+        await db.execute("""
+            INSERT INTO configuracion (evento_id, event_name, subtitle, logo_url, cashapp, venmo, applepay, love_text)
+            VALUES (1, :event_name, :subtitle, :logo_url, :cashapp, :venmo, :applepay, :love_text)
+            ON CONFLICT(evento_id) DO UPDATE SET
+                event_name=:event_name, subtitle=:subtitle, logo_url=:logo_url,
+                cashapp=:cashapp, venmo=:venmo, applepay=:applepay, love_text=:love_text
+        """, {
+            "event_name": data.get("event_name", "Mi Evento"),
+            "subtitle": data.get("subtitle", ""),
+            "logo_url": data.get("logo_url", ""),
+            "cashapp": data.get("cashapp", ""),
+            "venmo": data.get("venmo", ""),
+            "applepay": data.get("applepay", ""),
+            "love_text": data.get("love_text", "Show Your Love"),
+        })
+        await db.commit()
+    # Broadcast config update a todos los clientes
+    await manager.broadcast_to_dj({"tipo": "config_updated", "event_name": data.get("event_name", "")})
+    return {"ok": True}
+
+@app.get("/api/config/publica")
+async def config_publica():
+    async with aiosqlite.connect("dj_request.db") as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute("SELECT event_name, subtitle, logo_url, love_text FROM configuracion WHERE evento_id=1")
+        config = await cursor.fetchone()
+        if not config:
+            return {"event_name": "DJ Request", "subtitle": "", "logo_url": "", "love_text": "Show Your Love"}
+        return dict(config)
+
 # ─── Next Song ────────────────────────────────────────────────────────
 @app.post("/api/dj/next-song/{solicitud_id}")
 async def dj_next_song(solicitud_id: int, data: dict):

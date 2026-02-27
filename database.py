@@ -38,6 +38,20 @@ async def init_db():
                 UNIQUE(solicitud_id, ip_votante)
             )
         """)
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS configuracion (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                evento_id INTEGER NOT NULL UNIQUE,
+                event_name TEXT DEFAULT 'Mi Evento',
+                subtitle TEXT DEFAULT 'asong.live — DJ Request System',
+                logo_url TEXT DEFAULT '',
+                cashapp TEXT DEFAULT '',
+                venmo TEXT DEFAULT '',
+                applepay TEXT DEFAULT '',
+                love_text TEXT DEFAULT 'Show Your Love',
+                FOREIGN KEY (evento_id) REFERENCES eventos(id)
+            )
+        """)
         await db.commit()
 
 async def get_db():
