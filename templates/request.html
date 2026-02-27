@@ -277,12 +277,7 @@ async function enviarSolicitud() {
   if (res.ok) {
     showToast(lang==='en' ? '✅ Request sent! The DJ will review it' : '✅ ¡Solicitud enviada! El DJ la revisará');
     conectarWS(data.id);
-    selectedTrack = null;
-    document.getElementById('searchInput').value = '';
-    document.getElementById('results').innerHTML = '';
-    document.getElementById('selectedSection').classList.remove('visible');
-    document.getElementById('dedicatoria').value = '';
-    document.getElementById('charCount').textContent = '0';
+    resetForm();
   } else {
     showToast(data.detail || (lang==='en'?'Error sending':'Error al enviar'), true);
   }
@@ -310,19 +305,26 @@ function showRetryModal() {
 
 function retryRequest() {
   closeRetry();
-  // Reset form y scroll arriba
-  document.getElementById('searchInput').value = '';
-  document.getElementById('results').innerHTML = '';
-  document.getElementById('selectedSection').classList.remove('visible');
-  document.getElementById('dedicatoria').value = '';
-  document.getElementById('charCount').textContent = '0';
-  selectedTrack = null;
-  // Cambiar a tab de request y hacer focus en búsqueda
+  resetForm();
   setTab('request');
   setTimeout(() => {
     document.getElementById('searchInput').focus();
     window.scrollTo({top: 0, behavior: 'smooth'});
   }, 300);
+}
+
+function resetForm() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('selectedSection').classList.remove('visible');
+  document.getElementById('dedicatoria').value = '';
+  document.getElementById('charCount').textContent = '0';
+  document.getElementById('selectedCard').innerHTML = '';
+  // Limpiar cualquier mensaje de confirmacion post-envio
+  const confirmMsg = document.getElementById('confirmMsg');
+  if (confirmMsg) confirmMsg.style.display = 'none';
+  selectedTrack = null;
+  if (solicitudWS) { solicitudWS.close(); solicitudWS = null; }
 }
 
 function closeRetry() {
