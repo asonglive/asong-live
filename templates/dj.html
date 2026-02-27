@@ -492,12 +492,12 @@ function renderQueue() {
 }
 
 async function actualizar(id, estado) {
-  const res = await fetch(`/api/dj/actualizar/${id}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:PASSWORD,estado}) });
+  const res = await fetch(`/api/dj/estado/${id}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:PASSWORD,estado}) });
   if (res.ok) { const s=solicitudes.find(x=>x.id===id); if(s)s.estado=estado; renderQueue(); }
 }
 
 async function enviarNextSong(id, cancion) {
-  const res = await fetch(`/api/dj/next-song/${id}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:PASSWORD}) });
+  const res = await fetch(`/api/dj/next/${id}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:PASSWORD}) });
   if (res.ok) showNotif(`⚡ Next Song enviado: ${cancion}`,'warning');
 }
 
