@@ -7,389 +7,78 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
-    --black: #0a0a0a;
-    --white: #f5f5f0;
-    --orange: #FF6B2B;
-    --orange-dim: rgba(255,107,43,0.15);
-    --gray: #1a1a1a;
-    --gray-mid: #2a2a2a;
-    --gray-text: #666;
+    --black: #0a0a0a; --white: #f5f5f0; --orange: #FF6B2B;
+    --orange-dim: rgba(255,107,43,0.15); --gray: #1a1a1a;
+    --gray-mid: #2a2a2a; --gray-text: #666;
   }
-
   * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--black); color:var(--white); font-family:'DM Sans',sans-serif; height:100vh; overflow:hidden; }
+  body::before { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px); pointer-events:none; z-index:1000; }
 
-  body {
-    background: var(--black);
-    color: var(--white);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    overflow: hidden;
-  }
+  .display { display:grid; grid-template-rows:auto 1fr auto; height:100vh; padding:32px 48px; gap:24px; }
 
-  /* ── SCANLINE TEXTURE ── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
-    pointer-events: none;
-    z-index: 1000;
-  }
+  .header { display:flex; align-items:center; justify-content:space-between; }
+  .logo { display:flex; align-items:center; gap:14px; }
+  .logo-text { font-family:'Bebas Neue',sans-serif; font-size:2rem; letter-spacing:3px; color:var(--white); line-height:1; }
+  .logo-text span { color:var(--orange); }
+  .event-info { text-align:right; }
+  .event-name { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; letter-spacing:3px; color:var(--white); line-height:1; }
+  .event-sub { font-size:0.7rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-text); margin-top:4px; }
+  .live-badge { display:flex; align-items:center; gap:8px; background:var(--orange-dim); border:1px solid var(--orange); border-radius:2px; padding:6px 14px; font-size:0.65rem; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--orange); }
+  .live-dot { width:6px; height:6px; background:var(--orange); border-radius:50%; animation:pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
 
-  /* ── LAYOUT ── */
-  .display {
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    height: 100vh;
-    padding: 32px 48px;
-    gap: 24px;
-  }
+  .main { display:grid; grid-template-columns:1fr 380px; gap:32px; overflow:hidden; }
 
-  /* ── HEADER ── */
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+  .queue-section { overflow:hidden; display:flex; flex-direction:column; gap:16px; }
+  .section-label { font-size:0.6rem; letter-spacing:4px; text-transform:uppercase; color:var(--gray-text); display:flex; align-items:center; gap:12px; }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--gray-mid); }
+  .queue-list { display:flex; flex-direction:column; gap:10px; overflow:hidden; }
 
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
+  .song-card { display:flex; align-items:center; gap:16px; background:var(--gray); border:1px solid var(--gray-mid); border-radius:4px; padding:14px 18px; position:relative; overflow:hidden; transition:opacity .3s; }
+  .song-card::before { content:''; position:absolute; left:0;top:0;bottom:0; width:3px; background:var(--gray-mid); }
+  .song-card.aprobada::before { background:var(--orange); }
+  .song-card.top { background:#1a1200; border-color:#3a2800; }
+  .song-card.top::before { background:var(--orange); }
+  .song-rank { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; color:var(--gray-text); min-width:36px; text-align:center; line-height:1; }
+  .song-card.top .song-rank { color:var(--orange); }
+  .song-cover { width:52px; height:52px; border-radius:3px; object-fit:cover; flex-shrink:0; background:var(--gray-mid); }
+  .song-info { flex:1; min-width:0; }
+  .song-title { font-weight:700; font-size:1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .song-artist { font-size:0.78rem; color:var(--gray-text); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .song-dedic { font-size:0.72rem; color:var(--orange); margin-top:3px; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .song-votes { display:flex; flex-direction:column; align-items:center; gap:2px; min-width:48px; }
+  .votes-num { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; color:var(--white); line-height:1; }
+  .song-card.top .votes-num { color:var(--orange); }
+  .votes-label { font-size:0.55rem; letter-spacing:2px; text-transform:uppercase; color:var(--gray-text); }
+  .status-badge { font-size:0.55rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:3px 8px; border-radius:2px; background:var(--orange-dim); color:var(--orange); border:1px solid var(--orange); }
 
-  .logo-text {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2rem;
-    letter-spacing: 3px;
-    color: var(--white);
-    line-height: 1;
-  }
+  .right-panel { display:flex; flex-direction:column; gap:20px; }
+  .qr-box { background:var(--white); border-radius:6px; padding:20px; text-align:center; flex-shrink:0; }
+  .qr-box img { width:140px; height:140px; display:block; margin:0 auto 12px; }
+  .qr-cta { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:2px; color:var(--black); margin-bottom:4px; }
+  .qr-sub { font-size:0.65rem; color:#888; letter-spacing:1px; text-transform:uppercase; }
 
-  .logo-text span { color: var(--orange); }
+  .message-box { background:var(--gray); border:1px solid var(--gray-mid); border-radius:4px; padding:20px; flex:1; display:flex; flex-direction:column; gap:10px; overflow:hidden; }
+  .message-label { font-size:0.6rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-text); }
+  .message-text { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:2px; color:var(--white); line-height:1.3; flex:1; word-break:break-word; transition:color .3s; }
+  .message-text.orange { color:var(--orange); }
+  .message-text.empty { color:var(--gray-mid); font-size:1rem; font-family:'DM Sans',sans-serif; font-weight:400; letter-spacing:1px; }
 
-  .event-info { text-align: right; }
+  .stats-bar { display:flex; align-items:center; gap:32px; padding-top:16px; border-top:1px solid var(--gray-mid); }
+  .stat { text-align:center; }
+  .stat-num { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:var(--orange); line-height:1; transition:color .3s; }
+  .stat-label { font-size:0.55rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-text); margin-top:2px; }
+  .stat-divider { width:1px; height:32px; background:var(--gray-mid); }
+  .powered { margin-left:auto; font-size:0.6rem; letter-spacing:2px; text-transform:uppercase; color:var(--gray-mid); }
 
-  .event-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.2rem;
-    letter-spacing: 3px;
-    color: var(--white);
-    line-height: 1;
-  }
-
-  .event-sub {
-    font-size: 0.7rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--gray-text);
-    margin-top: 4px;
-  }
-
-  .live-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--orange-dim);
-    border: 1px solid var(--orange);
-    border-radius: 2px;
-    padding: 6px 14px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--orange);
-  }
-
-  .live-dot {
-    width: 6px;
-    height: 6px;
-    background: var(--orange);
-    border-radius: 50%;
-    animation: pulse 1.5s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.7); }
-  }
-
-  /* ── MAIN CONTENT ── */
-  .main {
-    display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: 32px;
-    overflow: hidden;
-  }
-
-  /* ── QUEUE ── */
-  .queue-section { overflow: hidden; display: flex; flex-direction: column; gap: 16px; }
-
-  .section-label {
-    font-size: 0.6rem;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: var(--gray-text);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--gray-mid);
-  }
-
-  .queue-list { display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
-
-  .song-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    background: var(--gray);
-    border: 1px solid var(--gray-mid);
-    border-radius: 4px;
-    padding: 14px 18px;
-    animation: slideIn .4s ease;
-    transition: all .3s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .song-card::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: var(--gray-mid);
-    transition: background .3s;
-  }
-
-  .song-card.aprobada::before { background: var(--orange); }
-  .song-card.top { background: #1a1200; border-color: #3a2800; }
-  .song-card.top::before { background: var(--orange); }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateX(-20px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-
-  .song-rank {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem;
-    color: var(--gray-text);
-    min-width: 36px;
-    text-align: center;
-    line-height: 1;
-  }
-
-  .song-card.top .song-rank { color: var(--orange); }
-
-  .song-cover {
-    width: 52px;
-    height: 52px;
-    border-radius: 3px;
-    object-fit: cover;
-    flex-shrink: 0;
-    background: var(--gray-mid);
-  }
-
-  .song-info { flex: 1; min-width: 0; }
-
-  .song-title {
-    font-weight: 700;
-    font-size: 1rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--white);
-  }
-
-  .song-artist {
-    font-size: 0.78rem;
-    color: var(--gray-text);
-    margin-top: 3px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .song-dedic {
-    font-size: 0.72rem;
-    color: var(--orange);
-    margin-top: 3px;
-    font-style: italic;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .song-votes {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    min-width: 48px;
-  }
-
-  .votes-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem;
-    color: var(--white);
-    line-height: 1;
-  }
-
-  .song-card.top .votes-num { color: var(--orange); }
-
-  .votes-label {
-    font-size: 0.55rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--gray-text);
-  }
-
-  .status-badge {
-    font-size: 0.55rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 2px;
-    background: var(--orange-dim);
-    color: var(--orange);
-    border: 1px solid var(--orange);
-  }
-
-  /* ── RIGHT PANEL ── */
-  .right-panel { display: flex; flex-direction: column; gap: 20px; }
-
-  /* ── QR BOX ── */
-  .qr-box {
-    background: var(--white);
-    border-radius: 6px;
-    padding: 20px;
-    text-align: center;
-    flex-shrink: 0;
-  }
-
-  .qr-box img { width: 140px; height: 140px; display: block; margin: 0 auto 12px; }
-
-  .qr-cta {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1rem;
-    letter-spacing: 2px;
-    color: var(--black);
-    margin-bottom: 4px;
-  }
-
-  .qr-sub { font-size: 0.65rem; color: #888; letter-spacing: 1px; text-transform: uppercase; }
-
-  /* ── MESSAGE BOARD ── */
-  .message-box {
-    background: var(--gray);
-    border: 1px solid var(--gray-mid);
-    border-radius: 4px;
-    padding: 20px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    overflow: hidden;
-  }
-
-  .message-label {
-    font-size: 0.6rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--gray-text);
-  }
-
-  .message-text {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem;
-    letter-spacing: 2px;
-    color: var(--white);
-    line-height: 1.3;
-    flex: 1;
-    word-break: break-word;
-    animation: fadeMsg .5s ease;
-  }
-
-  @keyframes fadeMsg {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .message-text.orange { color: var(--orange); }
-  .message-text.empty { color: var(--gray-mid); font-size: 1rem; }
-
-  /* ── STATS BAR ── */
-  .stats-bar {
-    display: flex;
-    align-items: center;
-    gap: 32px;
-    padding-top: 16px;
-    border-top: 1px solid var(--gray-mid);
-  }
-
-  .stat { text-align: center; }
-
-  .stat-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2rem;
-    color: var(--orange);
-    line-height: 1;
-  }
-
-  .stat-label {
-    font-size: 0.55rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--gray-text);
-    margin-top: 2px;
-  }
-
-  .stat-divider { width: 1px; height: 32px; background: var(--gray-mid); }
-
-  .powered {
-    margin-left: auto;
-    font-size: 0.6rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--gray-mid);
-  }
-
-  .empty-queue {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    gap: 12px;
-    color: var(--gray-mid);
-  }
-
-  .empty-queue-icon {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 4rem;
-    letter-spacing: 4px;
-    color: var(--gray-mid);
-  }
-
-  .empty-queue-text {
-    font-size: 0.7rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
+  .empty-queue { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; gap:12px; }
+  .empty-queue-icon { font-family:'Bebas Neue',sans-serif; font-size:4rem; letter-spacing:4px; color:var(--gray-mid); }
+  .empty-queue-text { font-size:0.7rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-mid); }
 </style>
 </head>
 <body>
-
 <div class="display">
-
-  <!-- HEADER -->
   <div class="header">
     <div class="logo">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 60" width="24" height="36">
@@ -408,10 +97,7 @@
     </div>
   </div>
 
-  <!-- MAIN -->
   <div class="main">
-
-    <!-- QUEUE -->
     <div class="queue-section">
       <div class="section-label">Song Queue</div>
       <div class="queue-list" id="queueList">
@@ -421,83 +107,68 @@
         </div>
       </div>
     </div>
-
-    <!-- RIGHT PANEL -->
     <div class="right-panel">
-
-      <!-- QR -->
       <div class="qr-box">
         <img src="/qr" alt="QR">
         <div class="qr-cta">Scan to Request</div>
         <div class="qr-sub">No app needed</div>
       </div>
-
-      <!-- MESSAGE BOARD -->
       <div class="message-box">
         <div class="message-label">DJ Message</div>
         <div class="message-text empty" id="messageDisplay">Waiting for message...</div>
       </div>
-
     </div>
   </div>
 
-  <!-- STATS -->
   <div class="stats-bar">
-    <div class="stat">
-      <div class="stat-num" id="statTotal">0</div>
-      <div class="stat-label">Requests</div>
-    </div>
+    <div class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Requests</div></div>
     <div class="stat-divider"></div>
-    <div class="stat">
-      <div class="stat-num" id="statPending">0</div>
-      <div class="stat-label">Pending</div>
-    </div>
+    <div class="stat"><div class="stat-num" id="statPending">0</div><div class="stat-label">Pending</div></div>
     <div class="stat-divider"></div>
-    <div class="stat">
-      <div class="stat-num" id="statApproved">0</div>
-      <div class="stat-label">Approved</div>
-    </div>
+    <div class="stat"><div class="stat-num" id="statApproved">0</div><div class="stat-label">Approved</div></div>
     <div class="stat-divider"></div>
-    <div class="stat">
-      <div class="stat-num" id="statVotes">0</div>
-      <div class="stat-label">Votes</div>
-    </div>
+    <div class="stat"><div class="stat-num" id="statVotes">0</div><div class="stat-label">Votes</div></div>
     <div class="powered">Powered by asong.live</div>
   </div>
-
 </div>
 
 <script>
-const EVENTO_ID = {{ evento.id if evento else 0 }};
-let currentMessage = '';
+const EVENTO_ID = {{ evento.id if evento else 1 }};
+let queueData = [];
 
-// Cargar config del evento
 fetch('/api/config/publica').then(r=>r.json()).then(cfg=>{
   if(cfg.event_name) document.getElementById('eventName').textContent = cfg.event_name;
   if(cfg.subtitle) document.getElementById('eventSub').textContent = cfg.subtitle;
 }).catch(()=>{});
 
-// WebSocket para updates en tiempo real
 const protocol = location.protocol==='https:' ? 'wss:' : 'ws:';
-const ws = new WebSocket(protocol+'//'+location.host+'/ws/display');
+let ws;
 
-ws.onmessage = (e) => {
-  const msg = JSON.parse(e.data);
-  if(msg.tipo === 'nueva_solicitud' || msg.tipo === 'estado_actualizado' || msg.tipo === 'voto') {
-    loadQueue();
-  }
-  if(msg.tipo === 'dj_message') {
-    updateMessage(msg.texto, msg.color);
-  }
-};
+function connectWS() {
+  ws = new WebSocket(protocol+'//'+location.host+'/ws/display');
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    if(['nueva_solicitud','estado_actualizado','voto'].includes(msg.tipo)) {
+      loadQueue();
+    }
+    if(msg.tipo === 'dj_message') {
+      updateMessage(msg.texto, msg.color);
+    }
+  };
+  ws.onclose = () => setTimeout(connectWS, 3000);
+}
+connectWS();
 
-ws.onclose = () => setTimeout(() => location.reload(), 3000);
+// Cache para evitar parpadeo
+let lastQueueHash = '';
 
 async function loadQueue() {
   const res = await fetch('/api/cola/'+EVENTO_ID);
   const items = await res.json();
+  const hash = JSON.stringify(items);
+  if(hash === lastQueueHash) return; // No cambió nada, no re-renderizar
+  lastQueueHash = hash;
 
-  // Stats
   const total = items.length;
   const pending = items.filter(i=>i.estado==='pendiente').length;
   const approved = items.filter(i=>i.estado==='aprobada').length;
@@ -509,15 +180,12 @@ async function loadQueue() {
   document.getElementById('statVotes').textContent = votes;
 
   const list = document.getElementById('queueList');
-
   if(!items.length) {
     list.innerHTML = '<div class="empty-queue"><div class="empty-queue-icon">♪</div><div class="empty-queue-text">Waiting for requests</div></div>';
     return;
   }
 
-  // Mostrar max 6 canciones
-  const visible = items.slice(0,6);
-  list.innerHTML = visible.map((s,i) => `
+  list.innerHTML = items.slice(0,6).map((s,i) => `
     <div class="song-card ${s.estado==='aprobada'?'aprobada':''} ${i===0?'top':''}">
       <div class="song-rank">${i+1}</div>
       <img class="song-cover" src="${s.portada_url||''}" alt="" onerror="this.style.display='none'">
@@ -538,14 +206,11 @@ async function loadQueue() {
 function updateMessage(texto, color) {
   const el = document.getElementById('messageDisplay');
   el.textContent = texto || 'Waiting for message...';
-  el.className = 'message-text' + (texto ? (color==='orange' ? ' orange' : '') : ' empty');
-  if(texto) el.style.animation = 'none';
-  setTimeout(()=>{ if(texto) el.style.animation=''; }, 10);
+  el.className = 'message-text' + (!texto ? ' empty' : color==='orange' ? ' orange' : '');
 }
 
-// Polling cada 10s como backup
 loadQueue();
-setInterval(loadQueue, 10000);
+setInterval(loadQueue, 15000);
 </script>
 </body>
 </html>

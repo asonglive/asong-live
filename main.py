@@ -23,28 +23,36 @@ DJ_PASSWORD = os.getenv("DJ_PASSWORD", "dj1234")
 class ConnectionManager:
     def __init__(self):
         self.dj_connections: list[WebSocket] = []
+        self.user_connections: dict[int, list[WebSocket]] = {}
+        self.display_connections: list[WebSocket] = []
 
     async def connect_dj(self, ws: WebSocket):
         await ws.accept()
         self.dj_connections.append(ws)
 
     def disconnect_dj(self, ws: WebSocket):
-        self.dj_connections.remove(ws)
+        if ws in self.dj_connections:
+            self.dj_connections.remove(ws)
 
     async def broadcast_to_dj(self, message: dict):
+        dead = []
         for ws in self.dj_connections:
             try:
                 await ws.send_json(message)
             except:
-                pass
+                dead.append(ws)
+        for ws in dead:
+            self.dj_connections.remove(ws)
+        # Tambien notificar a displays
+        await self.broadcast_to_display(message)
 
-    async def connect_user(self, ws, solicitud_id: int):
+    async def connect_user(self, ws: WebSocket, solicitud_id: int):
         await ws.accept()
         if solicitud_id not in self.user_connections:
             self.user_connections[solicitud_id] = []
         self.user_connections[solicitud_id].append(ws)
 
-    def disconnect_user(self, ws, solicitud_id: int):
+    def disconnect_user(self, ws: WebSocket, solicitud_id: int):
         if solicitud_id in self.user_connections:
             try: self.user_connections[solicitud_id].remove(ws)
             except: pass
@@ -56,18 +64,41 @@ class ConnectionManager:
             "reproducida": f"🎉 ¡Suena tu canción! '{cancion}' está en el aire",
             "next_song": f"⚡ ¡Prepárate! '{cancion}' es la siguiente canción 🔥"
         }
-        for ws in self.user_connections.get(solicitud_id, []):
-            try: await ws.send_json({"tipo": estado, "mensaje": mensajes.get(estado, "")})
+        conns = self.user_connections.get(solicitud_id, [])
+        dead = []
+        for ws in conns:
+            try:
+                await ws.send_json({"tipo": estado, "mensaje": mensajes.get(estado, "")})
+            except:
+                dead.append(ws)
+        for ws in dead:
+            try: conns.remove(ws)
             except: pass
 
+    async def connect_display(self, ws: WebSocket):
+        await ws.accept()
+        self.display_connections.append(ws)
+
+    def disconnect_display(self, ws: WebSocket):
+        if ws in self.display_connections:
+            self.display_connections.remove(ws)
+
+    async def broadcast_to_display(self, message: dict):
+        dead = []
+        for ws in self.display_connections:
+            try:
+                await ws.send_json(message)
+            except:
+                dead.append(ws)
+        for ws in dead:
+            self.display_connections.remove(ws)
+
 manager = ConnectionManager()
-manager.user_connections = {}
 
 # ─── Startup ──────────────────────────────────────────────────────────
 @app.on_event("startup")
 async def startup():
     await init_db()
-    # Crear evento demo si no existe
     async with aiosqlite.connect("dj_request.db") as db:
         cursor = await db.execute("SELECT COUNT(*) FROM eventos")
         count = (await cursor.fetchone())[0]
@@ -86,91 +117,39 @@ async def home(request: Request):
         "evento": {"id": evento[0], "nombre": evento[1]} if evento else None
     })
 
-# ─── Buscar canciones en Spotify ──────────────────────────────────────
+# ─── Buscar canciones ─────────────────────────────────────────────────
 @app.get("/api/buscar")
 async def buscar(q: str):
-    if not q or len(q) < 2:
-        return []
-    resultados = await buscar_canciones(q)
-    return resultados
+    return await buscar_canciones(q)
 
-# ─── Enviar solicitud ─────────────────────────────────────────────────
+# ─── Solicitar canción ────────────────────────────────────────────────
 @app.post("/api/solicitar")
-async def solicitar(request: Request, data: dict):
-    evento_id = data.get("evento_id")
-    cancion = data.get("cancion", "").strip()
-    artista = data.get("artista", "").strip()
-    spotify_id = data.get("spotify_id", "")
-    portada_url = data.get("portada_url", "")
-    dedicatoria = data.get("dedicatoria", "").strip()[:200]
-    ip = request.client.host
-
-    if not cancion or not artista:
-        raise HTTPException(400, "Canción y artista son requeridos")
-
+async def solicitar(data: dict):
+    evento_id = data.get("evento_id", 1)
     async with aiosqlite.connect("dj_request.db") as db:
-        # Evitar spam: máx 3 solicitudes por IP por evento
         cursor = await db.execute(
-            "SELECT COUNT(*) FROM solicitudes WHERE evento_id=? AND ip_solicitante=? AND estado='pendiente'",
-            (evento_id, ip)
-        )
-        count = (await cursor.fetchone())[0]
-        if count >= 3:
-            raise HTTPException(429, "Ya tienes 3 solicitudes pendientes. Espera a que el DJ las revise.")
-
-        cursor = await db.execute(
-            """INSERT INTO solicitudes (evento_id, cancion, artista, spotify_id, portada_url, dedicatoria, ip_solicitante)
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
-            (evento_id, cancion, artista, spotify_id, portada_url, dedicatoria, ip)
+            "INSERT INTO solicitudes (evento_id, cancion, artista, spotify_id, portada_url, dedicatoria) VALUES (?,?,?,?,?,?)",
+            (evento_id, data["cancion"], data["artista"], data.get("spotify_id",""), data.get("portada_url",""), data.get("dedicatoria",""))
         )
         await db.commit()
-        nueva_id = cursor.lastrowid
+        solicitud_id = cursor.lastrowid
+    await manager.broadcast_to_dj({
+        "tipo": "nueva_solicitud",
+        "id": solicitud_id,
+        "cancion": data["cancion"],
+        "artista": data["artista"],
+        "portada_url": data.get("portada_url",""),
+        "dedicatoria": data.get("dedicatoria","")
+    })
+    return {"id": solicitud_id, "ok": True}
 
-    nueva = {
-        "id": nueva_id,
-        "cancion": cancion,
-        "artista": artista,
-        "portada_url": portada_url,
-        "dedicatoria": dedicatoria,
-        "votos": 1,
-        "estado": "pendiente"
-    }
-    await manager.broadcast_to_dj({"tipo": "nueva_solicitud", "solicitud": nueva})
-    return {"ok": True, "id": nueva_id}
-
-# ─── Votar por una canción ────────────────────────────────────────────
-@app.post("/api/votar/{solicitud_id}")
-async def votar(solicitud_id: int, request: Request):
-    ip = request.client.host
-    async with aiosqlite.connect("dj_request.db") as db:
-        try:
-            await db.execute(
-                "INSERT INTO votos (solicitud_id, ip_votante) VALUES (?, ?)",
-                (solicitud_id, ip)
-            )
-            await db.execute(
-                "UPDATE solicitudes SET votos = votos + 1 WHERE id=?",
-                (solicitud_id,)
-            )
-            await db.commit()
-        except aiosqlite.IntegrityError:
-            raise HTTPException(409, "Ya votaste por esta canción")
-
-        cursor = await db.execute("SELECT votos FROM solicitudes WHERE id=?", (solicitud_id,))
-        votos = (await cursor.fetchone())[0]
-
-    await manager.broadcast_to_dj({"tipo": "voto", "solicitud_id": solicitud_id, "votos": votos})
-    return {"ok": True, "votos": votos}
-
-# ─── Ver cola pública ─────────────────────────────────────────────────
+# ─── Cola de solicitudes ──────────────────────────────────────────────
 @app.get("/api/cola/{evento_id}")
-async def get_cola(evento_id: int):
+async def cola(evento_id: int):
     async with aiosqlite.connect("dj_request.db") as db:
         db.row_factory = aiosqlite.Row
         cursor = await db.execute(
-            """SELECT id, cancion, artista, portada_url, dedicatoria, votos, estado, creado_en
-               FROM solicitudes WHERE evento_id=? AND estado IN ('pendiente','aprobada')
-               ORDER BY votos DESC, creado_en ASC""",
+            "SELECT * FROM solicitudes WHERE evento_id=? AND estado!='rechazada' ORDER BY votos DESC, id ASC",
             (evento_id,)
         )
         rows = await cursor.fetchall()
@@ -179,54 +158,92 @@ async def get_cola(evento_id: int):
 # ─── Panel DJ ─────────────────────────────────────────────────────────
 @app.get("/dj", response_class=HTMLResponse)
 async def dj_panel(request: Request):
-    return templates.TemplateResponse("dj.html", {"request": request})
+    async with aiosqlite.connect("dj_request.db") as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute("SELECT * FROM eventos WHERE activo=1 ORDER BY id DESC LIMIT 1")
+        evento = await cursor.fetchone()
+    return templates.TemplateResponse("dj.html", {"request": request, "evento": evento})
 
+# ─── DJ Solicitudes ───────────────────────────────────────────────────
 @app.get("/api/dj/solicitudes")
-async def dj_solicitudes(password: str):
+async def dj_solicitudes(password: str, evento_id: int = 1):
     if password != DJ_PASSWORD:
-        raise HTTPException(403, "Contraseña incorrecta")
+        raise HTTPException(403, "Forbidden")
     async with aiosqlite.connect("dj_request.db") as db:
         db.row_factory = aiosqlite.Row
         cursor = await db.execute(
-            """SELECT s.*, e.nombre as evento_nombre FROM solicitudes s
-               JOIN eventos e ON e.id = s.evento_id
-               WHERE s.estado IN ('pendiente','aprobada')
-               ORDER BY s.votos DESC, s.creado_en ASC"""
+            "SELECT * FROM solicitudes WHERE evento_id=? ORDER BY votos DESC, id ASC",
+            (evento_id,)
         )
         rows = await cursor.fetchall()
     return [dict(r) for r in rows]
 
-@app.post("/api/dj/actualizar/{solicitud_id}")
-async def dj_actualizar(solicitud_id: int, data: dict):
+# ─── Aprobar / Rechazar ───────────────────────────────────────────────
+@app.post("/api/dj/estado/{solicitud_id}")
+async def cambiar_estado(solicitud_id: int, data: dict):
     if data.get("password") != DJ_PASSWORD:
-        raise HTTPException(403, "Contraseña incorrecta")
-    nuevo_estado = data.get("estado")
-    if nuevo_estado not in ("aprobada", "reproducida", "rechazada"):
-        raise HTTPException(400, "Estado inválido")
-
+        raise HTTPException(403, "Forbidden")
+    estado = data["estado"]
     async with aiosqlite.connect("dj_request.db") as db:
-        await db.execute(
-            "UPDATE solicitudes SET estado=? WHERE id=?",
-            (nuevo_estado, solicitud_id)
-        )
-        await db.commit()
-
-    await manager.broadcast_to_dj({
-        "tipo": "estado_actualizado",
-        "solicitud_id": solicitud_id,
-        "estado": nuevo_estado
-    })
-    # Notificar al usuario en tiempo real
-    async with aiosqlite.connect("dj_request.db") as db:
+        db.row_factory = aiosqlite.Row
         cursor = await db.execute("SELECT cancion FROM solicitudes WHERE id=?", (solicitud_id,))
         row = await cursor.fetchone()
-        if row:
-            await manager.notify_user(solicitud_id, nuevo_estado, row[0])
+        if not row:
+            raise HTTPException(404, "Not found")
+        cancion = row["cancion"]
+        await db.execute("UPDATE solicitudes SET estado=? WHERE id=?", (estado, solicitud_id))
+        await db.commit()
+    await manager.notify_user(solicitud_id, estado, cancion)
+    await manager.broadcast_to_dj({"tipo": "estado_actualizado", "id": solicitud_id, "estado": estado})
     return {"ok": True}
 
+# ─── Next Song ────────────────────────────────────────────────────────
+@app.post("/api/dj/next/{solicitud_id}")
+async def next_song(solicitud_id: int, data: dict):
+    if data.get("password") != DJ_PASSWORD:
+        raise HTTPException(403, "Forbidden")
+    async with aiosqlite.connect("dj_request.db") as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute("SELECT cancion FROM solicitudes WHERE id=?", (solicitud_id,))
+        row = await cursor.fetchone()
+        if not row:
+            raise HTTPException(404, "Not found")
+        cancion = row["cancion"]
+    await manager.notify_user(solicitud_id, "next_song", cancion)
+    return {"ok": True}
 
+# ─── Votar ────────────────────────────────────────────────────────────
+@app.post("/api/votar/{solicitud_id}")
+async def votar(solicitud_id: int):
+    async with aiosqlite.connect("dj_request.db") as db:
+        await db.execute("UPDATE solicitudes SET votos=votos+1 WHERE id=?", (solicitud_id,))
+        await db.commit()
+        cursor = await db.execute("SELECT votos FROM solicitudes WHERE id=?", (solicitud_id,))
+        row = await cursor.fetchone()
+    await manager.broadcast_to_dj({"tipo": "voto", "id": solicitud_id, "votos": row[0]})
+    return {"votos": row[0]}
 
-# ─── Display / Proyeccion ─────────────────────────────────────────────────────
+# ─── WebSocket DJ ─────────────────────────────────────────────────────
+@app.websocket("/ws/dj")
+async def ws_dj(websocket: WebSocket):
+    await manager.connect_dj(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except:
+        manager.disconnect_dj(websocket)
+
+# ─── WebSocket Usuario ────────────────────────────────────────────────
+@app.websocket("/ws/usuario/{solicitud_id}")
+async def ws_usuario(websocket: WebSocket, solicitud_id: int):
+    await manager.connect_user(websocket, solicitud_id)
+    try:
+        while True:
+            await websocket.receive_text()
+    except:
+        manager.disconnect_user(websocket, solicitud_id)
+
+# ─── Display / Proyeccion ─────────────────────────────────────────────
 @app.get("/display", response_class=HTMLResponse)
 async def display_page(request: Request):
     async with aiosqlite.connect("dj_request.db") as db:
@@ -255,103 +272,62 @@ async def dj_message(data: dict):
     })
     return {"ok": True}
 
-# ─── Configuracion DJ ─────────────────────────────────────────────────────────
+# ─── Configuracion DJ ─────────────────────────────────────────────────
 @app.get("/api/dj/config")
-async def get_config(password: str):
+async def get_config(password: str, evento_id: int = 1):
     if password != DJ_PASSWORD:
-        raise HTTPException(403, "Contraseña incorrecta")
+        raise HTTPException(403, "Forbidden")
     async with aiosqlite.connect("dj_request.db") as db:
         db.row_factory = aiosqlite.Row
-        cursor = await db.execute("SELECT * FROM configuracion WHERE evento_id=1")
-        config = await cursor.fetchone()
-        if not config:
-            return {"event_name": "Mi Evento", "subtitle": "", "logo_url": "", "cashapp": "", "venmo": "", "applepay": "", "love_text": "Show Your Love"}
-        return dict(config)
+        cursor = await db.execute("SELECT * FROM configuracion WHERE evento_id=?", (evento_id,))
+        row = await cursor.fetchone()
+    if row:
+        return dict(row)
+    return {"evento_id": evento_id, "event_name": "Mi Evento", "subtitle": "asong.live — DJ Request System",
+            "logo_url": "", "cashapp": "", "venmo": "", "applepay": "", "love_text": "Show Your Love 💛"}
 
 @app.post("/api/dj/config")
 async def save_config(data: dict):
     if data.get("password") != DJ_PASSWORD:
-        raise HTTPException(403, "Contraseña incorrecta")
+        raise HTTPException(403, "Forbidden")
+    evento_id = data.get("evento_id", 1)
     async with aiosqlite.connect("dj_request.db") as db:
         await db.execute("""
             INSERT INTO configuracion (evento_id, event_name, subtitle, logo_url, cashapp, venmo, applepay, love_text)
-            VALUES (1, :event_name, :subtitle, :logo_url, :cashapp, :venmo, :applepay, :love_text)
+            VALUES (?,?,?,?,?,?,?,?)
             ON CONFLICT(evento_id) DO UPDATE SET
-                event_name=:event_name, subtitle=:subtitle, logo_url=:logo_url,
-                cashapp=:cashapp, venmo=:venmo, applepay=:applepay, love_text=:love_text
-        """, {
-            "event_name": data.get("event_name", "Mi Evento"),
-            "subtitle": data.get("subtitle", ""),
-            "logo_url": data.get("logo_url", ""),
-            "cashapp": data.get("cashapp", ""),
-            "venmo": data.get("venmo", ""),
-            "applepay": data.get("applepay", ""),
-            "love_text": data.get("love_text", "Show Your Love"),
-        })
+                event_name=excluded.event_name, subtitle=excluded.subtitle,
+                logo_url=excluded.logo_url, cashapp=excluded.cashapp,
+                venmo=excluded.venmo, applepay=excluded.applepay, love_text=excluded.love_text
+        """, (evento_id, data.get("event_name","Mi Evento"), data.get("subtitle",""),
+              data.get("logo_url",""), data.get("cashapp",""), data.get("venmo",""),
+              data.get("applepay",""), data.get("love_text","Show Your Love 💛")))
         await db.commit()
-    # Broadcast config update a todos los clientes
-    await manager.broadcast_to_dj({"tipo": "config_updated", "event_name": data.get("event_name", "")})
+    await manager.broadcast_to_dj({"tipo": "config_actualizada"})
     return {"ok": True}
 
 @app.get("/api/config/publica")
 async def config_publica():
     async with aiosqlite.connect("dj_request.db") as db:
         db.row_factory = aiosqlite.Row
-        cursor = await db.execute("SELECT event_name, subtitle, logo_url, love_text FROM configuracion WHERE evento_id=1")
-        config = await cursor.fetchone()
-        if not config:
-            return {"event_name": "DJ Request", "subtitle": "", "logo_url": "", "love_text": "Show Your Love"}
-        return dict(config)
-
-# ─── Next Song ────────────────────────────────────────────────────────
-@app.post("/api/dj/next-song/{solicitud_id}")
-async def dj_next_song(solicitud_id: int, data: dict):
-    if data.get("password") != DJ_PASSWORD:
-        raise HTTPException(403, "Contraseña incorrecta")
-    async with aiosqlite.connect("dj_request.db") as db:
-        cursor = await db.execute("SELECT cancion FROM solicitudes WHERE id=?", (solicitud_id,))
+        cursor = await db.execute("SELECT * FROM configuracion LIMIT 1")
         row = await cursor.fetchone()
-    if not row:
-        raise HTTPException(404, "No encontrada")
-    await manager.notify_user(solicitud_id, "next_song", row[0])
-    await manager.broadcast_to_dj({"tipo": "next_song_sent", "solicitud_id": solicitud_id})
-    return {"ok": True}
+    if row:
+        return dict(row)
+    return {"event_name": "DJ Request", "subtitle": "asong.live — DJ Request System", "logo_url": "", "love_text": "Show Your Love 💛"}
 
-# ─── WebSocket Usuario ────────────────────────────────────────────────
-@app.websocket("/ws/usuario/{solicitud_id}")
-async def ws_usuario(websocket: WebSocket, solicitud_id: int):
-    await manager.connect_user(websocket, solicitud_id)
-    try:
-        while True:
-            await websocket.receive_text()
-    except WebSocketDisconnect:
-        manager.disconnect_user(websocket, solicitud_id)
-
-# ─── WebSocket DJ ─────────────────────────────────────────────────────
-@app.websocket("/ws/dj")
-async def ws_dj(websocket: WebSocket):
-    await manager.connect_dj(websocket)
-    try:
-        while True:
-            await websocket.receive_text()
-    except WebSocketDisconnect:
-        manager.disconnect_dj(websocket)
-
-# ─── Generar QR ───────────────────────────────────────────────────────
+# ─── QR Code ──────────────────────────────────────────────────────────
 @app.get("/qr")
-async def generar_qr(url: Optional[str] = None):
-    target = url or BASE_URL
+async def qr_code():
+    target = BASE_URL
     qr = qrcode.QRCode(version=1, box_size=10, border=4)
     qr.add_data(target)
     qr.make(fit=True)
     img = qr.make_image(fill_color="#0a0a0a", back_color="white")
-
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     buf.seek(0)
-
-    from fastapi.responses import StreamingResponse
-    return StreamingResponse(buf, media_type="image/png",
+    return FileResponse(buf, media_type="image/png",
         headers={"Content-Disposition": "inline; filename=qr_dj.png"})
 
 @app.get("/qr/page", response_class=HTMLResponse)
