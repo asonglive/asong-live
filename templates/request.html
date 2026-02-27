@@ -89,6 +89,15 @@
   .empty { text-align:center; padding:48px 20px; color:var(--gray-400); }
   .empty-icon { font-size:2.5rem; margin-bottom:10px; }
   .empty-text { font-size:0.8rem; letter-spacing:2px; text-transform:uppercase; }
+
+  .retry-modal { position:fixed; bottom:0; left:0; right:0; z-index:300; background:var(--white); border-top:2px solid var(--black); padding:24px 20px; transform:translateY(100%); transition:transform .4s cubic-bezier(.175,.885,.32,1.275); }
+  .retry-modal.show { transform:translateY(0); }
+  .retry-icon { font-size:2.5rem; text-align:center; margin-bottom:10px; }
+  .retry-title { font-family:'Bebas Neue','Arial Black',sans-serif; font-size:1.4rem; letter-spacing:2px; text-align:center; margin-bottom:6px; }
+  .retry-sub { color:var(--gray-600); font-size:0.82rem; text-align:center; margin-bottom:20px; line-height:1.5; }
+  .btn-retry { width:100%; padding:15px; background:var(--black); color:var(--white); border:none; border-radius:3px; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; cursor:pointer; margin-bottom:10px; transition:opacity .2s; }
+  .btn-retry:hover { opacity:0.8; }
+  .btn-retry.secondary { background:transparent; color:var(--gray-400); border:1.5px solid var(--gray-200); }
 </style>
 </head>
 <body>
@@ -148,6 +157,13 @@
   </div>
 </div>
 
+<div class="retry-modal" id="retryModal">
+  <div class="retry-icon">😔</div>
+  <div class="retry-title" id="retryTitle">Not available</div>
+  <div class="retry-sub" id="retrySub">The DJ doesn't have that one right now, but the night is young!</div>
+  <button class="btn-retry" onclick="retryRequest()">🎵 Try Another Song</button>
+  <button class="btn-retry secondary" onclick="closeRetry()">Maybe Later</button>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -202,11 +218,15 @@ function conectarWS(solicitudId) {
   solicitudWS.onmessage = (e) => {
     const msg = JSON.parse(e.data);
     const msgs = {
-      en: { aprobada:'✅ The DJ has your song! Coming soon 🎶', rechazada:'😔 Song not available right now', reproducida:'🎉 Your song is playing NOW!', next_song:'⚡ Get ready! Your song is NEXT 🔥' },
-      es: { aprobada:'✅ ¡El DJ tiene tu canción! Viene pronto 🎶', rechazada:'😔 Canción no disponible ahora', reproducida:'🎉 ¡Tu canción suena AHORA!', next_song:'⚡ ¡Prepárate! Tu canción es la SIGUIENTE 🔥' }
+      en: { aprobada:'✅ The DJ has your song! Coming soon 🎶', reproducida:'🎉 Your song is playing NOW!', next_song:'⚡ Get ready! Your song is NEXT 🔥' },
+      es: { aprobada:'✅ ¡El DJ tiene tu canción! Viene pronto 🎶', reproducida:'🎉 ¡Tu canción suena AHORA!', next_song:'⚡ ¡Prepárate! Tu canción es la SIGUIENTE 🔥' }
     };
-    const tipos = { aprobada:'approved', rechazada:'rejected', reproducida:'reproducida', next_song:'next_song' };
-    showDJNotif(msgs[lang][msg.tipo] || msg.mensaje, tipos[msg.tipo] || 'approved', msg.tipo==='next_song' ? 8000 : 5000);
+    const tipos = { aprobada:'approved', reproducida:'reproducida', next_song:'next_song' };
+    if (msg.tipo === 'rechazada') {
+      showRetryModal();
+    } else {
+      showDJNotif(msgs[lang][msg.tipo] || msg.mensaje, tipos[msg.tipo] || 'approved', msg.tipo==='next_song' ? 8000 : 5000);
+    }
   };
 }
 
@@ -268,6 +288,45 @@ async function enviarSolicitud() {
   }
   btn.disabled = false;
   btn.querySelector('span').textContent = lang==='en' ? 'Send Request' : 'Enviar Solicitud';
+}
+
+function showRetryModal() {
+  const modal = document.getElementById('retryModal');
+  const title = document.getElementById('retryTitle');
+  const sub = document.getElementById('retrySub');
+  if (lang === 'en') {
+    title.textContent = "Not available right now";
+    sub.textContent = "The DJ doesn't have that one tonight, but the night is young — request another!";
+    document.querySelector('.btn-retry:not(.secondary)').textContent = '🎵 Try Another Song';
+    document.querySelector('.btn-retry.secondary').textContent = 'Maybe Later';
+  } else {
+    title.textContent = "No disponible ahorita";
+    sub.textContent = "El DJ no la tiene esta noche, ¡pero la noche es larga — pide otra!";
+    document.querySelector('.btn-retry:not(.secondary)').textContent = '🎵 Pide Otra Canción';
+    document.querySelector('.btn-retry.secondary').textContent = 'Quizás después';
+  }
+  modal.classList.add('show');
+}
+
+function retryRequest() {
+  closeRetry();
+  // Reset form y scroll arriba
+  document.getElementById('searchInput').value = '';
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('selectedSection').classList.remove('visible');
+  document.getElementById('dedicatoria').value = '';
+  document.getElementById('charCount').textContent = '0';
+  selectedTrack = null;
+  // Cambiar a tab de request y hacer focus en búsqueda
+  setTab('request');
+  setTimeout(() => {
+    document.getElementById('searchInput').focus();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }, 300);
+}
+
+function closeRetry() {
+  document.getElementById('retryModal').classList.remove('show');
 }
 
 async function loadQueue() {
