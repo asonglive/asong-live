@@ -225,6 +225,36 @@ async def dj_actualizar(solicitud_id: int, data: dict):
     return {"ok": True}
 
 
+
+# ─── Display / Proyeccion ─────────────────────────────────────────────────────
+@app.get("/display", response_class=HTMLResponse)
+async def display_page(request: Request):
+    async with aiosqlite.connect("dj_request.db") as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute("SELECT * FROM eventos WHERE activo=1 ORDER BY id DESC LIMIT 1")
+        evento = await cursor.fetchone()
+    return templates.TemplateResponse("display.html", {"request": request, "evento": evento})
+
+@app.websocket("/ws/display")
+async def ws_display(websocket: WebSocket):
+    await manager.connect_display(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except:
+        manager.disconnect_display(websocket)
+
+@app.post("/api/dj/message")
+async def dj_message(data: dict):
+    if data.get("password") != DJ_PASSWORD:
+        raise HTTPException(403, "Forbidden")
+    await manager.broadcast_to_display({
+        "tipo": "dj_message",
+        "texto": data.get("texto", ""),
+        "color": data.get("color", "white")
+    })
+    return {"ok": True}
+
 # ─── Configuracion DJ ─────────────────────────────────────────────────────────
 @app.get("/api/dj/config")
 async def get_config(password: str):
