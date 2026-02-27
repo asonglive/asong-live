@@ -1,271 +1,370 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>🎵 DJ Request</title>
+<title>asong.live</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root {
-    --green: #1DB954;
-    --dark: #121212;
-    --card: #1e1e1e;
-    --card2: #2a2a2a;
-    --text: #fff;
-    --muted: #b3b3b3;
+    --black:#0a0a0a; --white:#f5f5f0; --gray-100:#f0f0eb;
+    --gray-200:#e0e0d8; --gray-400:#999990; --gray-600:#555550;
+    --orange:#FF6B2B; --green:#1a6b3a; --green-light:#e8f5ee;
+    --red:#8b1a1a; --red-light:#fceaea; --gold:#b8960c;
   }
-  body { background: var(--dark); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
-  header { background: linear-gradient(135deg, #1DB954 0%, #158a3e 100%); padding: 28px 20px 20px; text-align: center; }
-  header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
-  header p { font-size: 0.85rem; opacity: 0.85; margin-top: 4px; }
-  .tabs { display: flex; background: var(--card); border-bottom: 1px solid #333; }
-  .tab { flex: 1; padding: 14px; text-align: center; font-size: 0.85rem; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all .2s; }
-  .tab.active { color: var(--green); border-bottom-color: var(--green); }
-  .panel { display: none; padding: 16px; }
-  .panel.active { display: block; }
+  body { background:var(--white); color:var(--black); font-family:'DM Sans',sans-serif; min-height:100vh; }
 
-  /* Buscar */
-  .search-box { position: relative; margin-bottom: 12px; }
-  .search-box input { width: 100%; background: var(--card2); border: 2px solid #333; border-radius: 12px; padding: 14px 44px 14px 16px; color: var(--text); font-size: 1rem; outline: none; transition: border .2s; }
-  .search-box input:focus { border-color: var(--green); }
-  .search-box .icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; }
-  .spinner { display: none; text-align: center; padding: 20px; color: var(--muted); }
-  .track-card { display: flex; align-items: center; gap: 12px; background: var(--card2); border-radius: 12px; padding: 10px; margin-bottom: 8px; cursor: pointer; border: 2px solid transparent; transition: all .2s; }
-  .track-card:hover, .track-card.selected { border-color: var(--green); background: #1a3326; }
-  .track-card img { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; }
-  .track-info { flex: 1; min-width: 0; }
-  .track-name { font-weight: 700; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .track-artist { color: var(--muted); font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .header { background:var(--black); padding:16px 20px; position:sticky; top:0; z-index:100; }
+  .header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .logo { display:flex; align-items:center; gap:10px; }
+  .logo-text { font-family:'Bebas Neue','Arial Black',sans-serif; font-size:1.5rem; letter-spacing:2px; color:#f5f5f0; line-height:1; }
+  .logo-text span { color:#FF6B2B; }
+  .lang-toggle { display:flex; gap:2px; background:#1a1a1a; border-radius:4px; padding:3px; }
+  .lang-btn { padding:4px 10px; border-radius:2px; font-size:0.7rem; font-weight:600; letter-spacing:1px; border:none; cursor:pointer; transition:all .2s; background:transparent; color:var(--gray-400); }
+  .lang-btn.active { background:var(--white); color:var(--black); }
+  .event-name { font-family:'Bebas Neue','Arial Black',sans-serif; font-size:1.8rem; letter-spacing:2px; color:#f5f5f0; line-height:1; }
+  .event-sub { color:var(--gray-400); font-size:0.7rem; letter-spacing:2px; text-transform:uppercase; margin-top:3px; }
 
-  /* Form dedicatoria */
-  .form-section { margin-top: 16px; display: none; }
-  .form-section.visible { display: block; }
-  .selected-preview { background: #1a3326; border: 1px solid var(--green); border-radius: 12px; padding: 12px; display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
-  .selected-preview img { width: 44px; height: 44px; border-radius: 6px; }
-  textarea { width: 100%; background: var(--card2); border: 2px solid #333; border-radius: 12px; padding: 12px; color: var(--text); font-size: 0.95rem; outline: none; resize: none; transition: border .2s; }
-  textarea:focus { border-color: var(--green); }
-  .btn { width: 100%; padding: 15px; background: var(--green); color: #000; border: none; border-radius: 12px; font-size: 1rem; font-weight: 800; cursor: pointer; margin-top: 10px; transition: transform .1s, opacity .2s; }
-  .btn:active { transform: scale(0.98); }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn.danger { background: #e74c3c; color: #fff; }
+  .tabs { display:flex; background:var(--white); border-bottom:1.5px solid var(--gray-200); position:sticky; top:95px; z-index:99; }
+  .tab { flex:1; padding:14px; text-align:center; font-size:0.75rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--gray-400); cursor:pointer; border-bottom:2px solid transparent; transition:all .2s; }
+  .tab.active { color:var(--black); border-bottom-color:var(--black); }
 
-  /* Cola */
-  .cola-item { background: var(--card2); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; align-items: center; }
-  .cola-item img { width: 48px; height: 48px; border-radius: 8px; }
-  .cola-info { flex: 1; min-width: 0; }
-  .cola-name { font-weight: 700; font-size: 0.9rem; }
-  .cola-artist { color: var(--muted); font-size: 0.78rem; }
-  .cola-dedicatoria { color: #aaa; font-size: 0.78rem; margin-top: 3px; font-style: italic; }
-  .vote-btn { background: var(--card); border: 2px solid #444; border-radius: 10px; padding: 8px 12px; color: var(--text); font-size: 0.85rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 50px; transition: all .2s; }
-  .vote-btn.voted { border-color: var(--green); color: var(--green); }
-  .vote-btn span { font-size: 1.1rem; }
-  .estado-badge { font-size: 0.7rem; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
-  .estado-pendiente { background: #333; color: #aaa; }
-  .estado-aprobada { background: #1a3326; color: var(--green); }
+  .panel { display:none; padding:20px; }
+  .panel.active { display:block; }
 
-  /* Toast */
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--green); color: #000; padding: 12px 24px; border-radius: 30px; font-weight: 700; font-size: 0.9rem; transition: transform .3s; z-index: 999; white-space: nowrap; }
-  .toast.error { background: #e74c3c; color: #fff; }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .empty { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 0.9rem; }
-  .dj-notif { position: fixed; top: 0; left: 0; right: 0; z-index: 998; padding: 16px 20px; text-align: center; font-weight: 700; font-size: 0.95rem; transform: translateY(-100%); transition: transform .4s; }
-  .dj-notif.show { transform: translateY(0); }
-  .dj-notif.approved { background: #1a6b3a; color: #fff; }
-  .dj-notif.rejected { background: #8b1a1a; color: #fff; }
-  .dj-notif.played { background: #1DB954; color: #000; }
-  .dj-notif.nextsong { background: #b8960c; color: #000; }
+  .search-hint { font-size:0.72rem; color:var(--gray-400); letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+  .search-wrap { position:relative; margin-bottom:16px; }
+  .search-input { width:100%; background:var(--gray-100); border:1.5px solid var(--gray-200); border-radius:3px; padding:14px 44px 14px 16px; font-family:'DM Sans',sans-serif; font-size:0.95rem; color:var(--black); outline:none; transition:border .2s; }
+  .search-input:focus { border-color:var(--black); background:var(--white); }
+  .search-icon { position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--gray-400); }
+  .spinner { text-align:center; padding:20px; color:var(--gray-400); font-size:0.8rem; letter-spacing:2px; text-transform:uppercase; display:none; }
+
+  .track-card { display:flex; align-items:center; gap:12px; padding:12px; border-radius:3px; border:1.5px solid var(--gray-200); margin-bottom:8px; cursor:pointer; transition:all .2s; background:var(--white); }
+  .track-card:hover, .track-card.selected { border-color:var(--black); }
+  .track-card.selected { background:var(--gray-100); }
+  .track-img { width:52px; height:52px; border-radius:2px; object-fit:cover; flex-shrink:0; }
+  .track-name { font-weight:700; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .track-artist { color:var(--gray-600); font-size:0.78rem; margin-top:2px; }
+  .track-check { margin-left:auto; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--gray-200); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+  .track-card.selected .track-check { background:var(--black); border-color:var(--black); color:#fff; font-size:0.7rem; font-weight:700; }
+
+  .selected-section { margin-top:20px; display:none; }
+  .selected-section.visible { display:block; }
+  .divider { height:1px; background:var(--gray-200); margin:16px 0; }
+  .section-label { font-size:0.65rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-400); margin-bottom:10px; }
+  .selected-card { background:var(--gray-100); border:1.5px solid var(--gray-200); border-radius:3px; padding:12px; display:flex; gap:12px; align-items:center; margin-bottom:14px; }
+  .selected-card img { width:48px; height:48px; border-radius:2px; flex-shrink:0; }
+
+  .dedic-input { width:100%; background:var(--gray-100); border:1.5px solid var(--gray-200); border-radius:3px; padding:12px 14px; font-family:'DM Sans',sans-serif; font-size:0.88rem; color:var(--black); outline:none; resize:none; transition:border .2s; }
+  .dedic-input:focus { border-color:var(--black); background:var(--white); }
+  .char-count { text-align:right; font-size:0.7rem; color:var(--gray-400); margin-top:4px; }
+
+  .btn-submit { width:100%; margin-top:14px; padding:16px; background:var(--black); color:var(--white); border:none; border-radius:3px; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:700; letter-spacing:3px; text-transform:uppercase; cursor:pointer; transition:opacity .2s; }
+  .btn-submit:hover { opacity:0.8; }
+  .btn-submit:disabled { opacity:0.4; cursor:not-allowed; }
+
+  .queue-item { display:flex; gap:12px; align-items:center; padding:12px; background:var(--white); border:1.5px solid var(--gray-200); border-radius:3px; margin-bottom:8px; }
+  .queue-img { width:48px; height:48px; border-radius:2px; object-fit:cover; flex-shrink:0; }
+  .queue-name { font-weight:700; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .queue-artist { color:var(--gray-600); font-size:0.75rem; margin-top:2px; }
+  .queue-dedic { color:var(--gray-400); font-size:0.72rem; margin-top:4px; font-style:italic; }
+  .vote-btn { background:var(--gray-100); border:1.5px solid var(--gray-200); border-radius:3px; padding:6px 10px; font-size:0.75rem; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:1px; transition:all .2s; min-width:44px; }
+  .vote-btn.voted { border-color:var(--black); background:var(--black); color:var(--white); }
+  .status-pill { font-size:0.6rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:2px 8px; border-radius:20px; }
+  .status-pendiente { background:var(--gray-100); color:var(--gray-400); }
+  .status-aprobada { background:var(--green-light); color:var(--green); }
+
+  .dj-notif { position:fixed; top:0; left:0; right:0; z-index:200; padding:18px 20px; text-align:center; font-family:'Bebas Neue','Arial Black',sans-serif; font-size:1.1rem; letter-spacing:2px; transform:translateY(-100%); transition:transform .4s cubic-bezier(.175,.885,.32,1.275); }
+  .dj-notif.show { transform:translateY(0); }
+  .dj-notif.approved { background:var(--green); color:#fff; }
+  .dj-notif.rejected { background:var(--red); color:#fff; }
+  .dj-notif.reproducida { background:var(--black); color:#fff; }
+  .dj-notif.next_song { background:var(--orange); color:#fff; }
+
+  .toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--black); color:var(--white); padding:12px 24px; border-radius:3px; font-size:0.8rem; font-weight:600; letter-spacing:1px; transition:transform .3s; z-index:999; white-space:nowrap; }
+  .toast.error { background:var(--red); }
+  .toast.show { transform:translateX(-50%) translateY(0); }
+
+  .empty { text-align:center; padding:48px 20px; color:var(--gray-400); }
+  .empty-icon { font-size:2.5rem; margin-bottom:10px; }
+  .empty-text { font-size:0.8rem; letter-spacing:2px; text-transform:uppercase; }
+
+  .retry-modal { position:fixed; bottom:0; left:0; right:0; z-index:300; background:var(--white); border-top:2px solid var(--black); padding:24px 20px; transform:translateY(100%); transition:transform .4s cubic-bezier(.175,.885,.32,1.275); }
+  .retry-modal.show { transform:translateY(0); }
+  .retry-icon { font-size:2.5rem; text-align:center; margin-bottom:10px; }
+  .retry-title { font-family:'Bebas Neue','Arial Black',sans-serif; font-size:1.4rem; letter-spacing:2px; text-align:center; margin-bottom:6px; }
+  .retry-sub { color:var(--gray-600); font-size:0.82rem; text-align:center; margin-bottom:20px; line-height:1.5; }
+  .btn-retry { width:100%; padding:15px; background:var(--black); color:var(--white); border:none; border-radius:3px; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; cursor:pointer; margin-bottom:10px; transition:opacity .2s; }
+  .btn-retry:hover { opacity:0.8; }
+  .btn-retry.secondary { background:transparent; color:var(--gray-400); border:1.5px solid var(--gray-200); }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>🎵 DJ Request</h1>
-  <p>{{ evento.nombre if evento else "Sin evento activo" }}</p>
-</header>
+<div class="dj-notif" id="djNotif"></div>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 60" width="18" height="28">
+        <rect x="0" y="15" width="5" height="30" fill="#FF6B2B" rx="2" opacity="0.4"/>
+        <rect x="9" y="8" width="5" height="44" fill="#FF6B2B" rx="2" opacity="0.7"/>
+        <rect x="18" y="0" width="5" height="60" fill="#FF6B2B" rx="2"/>
+        <rect x="27" y="10" width="5" height="40" fill="#FF6B2B" rx="2" opacity="0.7"/>
+        <rect x="36" y="20" width="5" height="20" fill="#FF6B2B" rx="2" opacity="0.4"/>
+      </svg>
+      <div class="logo-text">asong<span>.live</span></div>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('en')" id="btnEn">EN</button>
+      <button class="lang-btn" onclick="setLang('es')" id="btnEs">ES</button>
+    </div>
+  </div>
+  <div class="event-name" id="eventName">DJ Request</div>
+  <div class="event-sub" id="eventSub">Request your song</div>
+</div>
 
 <div class="tabs">
-  <div class="tab active" onclick="setTab('solicitar')">🎤 Pedir canción</div>
-  <div class="tab" onclick="setTab('cola')">📋 Cola</div>
+  <div class="tab active" id="tab1" onclick="setTab('request')">🎤 <span data-en="Request" data-es="Pedir">Request</span></div>
+  <div class="tab" id="tab2" onclick="setTab('queue')">📋 <span data-en="Queue" data-es="Cola">Queue</span></div>
 </div>
 
-<!-- PANEL SOLICITAR -->
-<div class="panel active" id="tab-solicitar">
-  <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Busca una canción o artista..." oninput="onSearch(this.value)">
-    <span class="icon">🔍</span>
+<div class="panel active" id="panel-request">
+  <p class="search-hint" data-en="Search by song or artist" data-es="Busca por canción o artista">Search by song or artist</p>
+  <div class="search-wrap">
+    <input class="search-input" id="searchInput" type="text" placeholder="Search..." oninput="onSearch(this.value)">
+    <span class="search-icon">♪</span>
   </div>
-  <div class="spinner" id="spinner">Buscando en Spotify...</div>
-  <div id="resultados"></div>
-
-  <div class="form-section" id="formSection">
-    <div class="selected-preview" id="selectedPreview"></div>
-    <textarea id="dedicatoria" placeholder="Dedicatoria o mensaje para el DJ (opcional)" rows="3" maxlength="200"></textarea>
-    <div style="text-align:right; color:var(--muted); font-size:0.75rem; margin-top:4px"><span id="charCount">0</span>/200</div>
-    <button class="btn" id="submitBtn" onclick="enviarSolicitud()">🎶 Enviar solicitud</button>
+  <div class="spinner" id="spinner">Searching...</div>
+  <div id="results"></div>
+  <div class="selected-section" id="selectedSection">
+    <div class="divider"></div>
+    <p class="section-label" data-en="Selected song" data-es="Canción seleccionada">Selected song</p>
+    <div class="selected-card" id="selectedCard"></div>
+    <p class="section-label" data-en="Message for the DJ (optional)" data-es="Mensaje para el DJ (opcional)">Message for the DJ (optional)</p>
+    <textarea class="dedic-input" id="dedicatoria" rows="3" maxlength="200" oninput="document.getElementById('charCount').textContent=this.value.length" placeholder="Dedicate this song..."></textarea>
+    <div class="char-count"><span id="charCount">0</span>/200</div>
+    <button class="btn-submit" id="submitBtn" onclick="enviarSolicitud()">
+      <span data-en="Send Request" data-es="Enviar Solicitud">Send Request</span>
+    </button>
   </div>
 </div>
 
-<!-- PANEL COLA -->
-<div class="panel" id="tab-cola">
-  <div id="colaContainer"><div class="empty">⏳ Cargando solicitudes...</div></div>
+<div class="panel" id="panel-queue">
+  <div id="queueContainer">
+    <div class="empty"><div class="empty-icon">🎵</div><div class="empty-text" data-en="No requests yet" data-es="Sin solicitudes aún">No requests yet</div></div>
+  </div>
 </div>
 
+<div class="retry-modal" id="retryModal">
+  <div class="retry-icon">😔</div>
+  <div class="retry-title" id="retryTitle">Not available</div>
+  <div class="retry-sub" id="retrySub">The DJ doesn't have that one right now, but the night is young!</div>
+  <button class="btn-retry" onclick="retryRequest()">🎵 Try Another Song</button>
+  <button class="btn-retry secondary" onclick="closeRetry()">Maybe Later</button>
+</div>
 <div class="toast" id="toast"></div>
-<div class="dj-notif" id="djNotif"></div>
 
 <script>
 const EVENTO_ID = {{ evento.id if evento else 0 }};
+const EVENTO_NOMBRE = "{{ evento.nombre if evento else 'DJ Request' }}";
 let selectedTrack = null;
 let searchTimer = null;
 let votados = JSON.parse(localStorage.getItem('votados') || '[]');
+let lang = navigator.language.startsWith('es') ? 'es' : 'en';
+let solicitudWS = null;
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btnEn').classList.toggle('active', l==='en');
+  document.getElementById('btnEs').classList.toggle('active', l==='es');
+  document.querySelectorAll('[data-en]').forEach(el => el.textContent = el.getAttribute('data-'+l));
+  document.getElementById('eventSub').textContent = l==='en' ? 'Request your song' : 'Pide tu canción';
+  document.getElementById('searchInput').placeholder = l==='en' ? 'Search...' : 'Buscar...';
+  document.getElementById('dedicatoria').placeholder = l==='en' ? 'Dedicate this song...' : 'Dedica esta canción...';
+  document.getElementById('submitBtn').querySelector('span').textContent = l==='en' ? 'Send Request' : 'Enviar Solicitud';
+}
+
+document.getElementById('eventName').textContent = EVENTO_NOMBRE || 'DJ Request';
+setLang(lang);
+
+// Cargar config pública del servidor
+fetch('/api/config/publica').then(r => r.json()).then(cfg => {
+  if (cfg.event_name) document.getElementById('eventName').textContent = cfg.event_name;
+  if (cfg.subtitle) document.getElementById('eventSub').textContent = cfg.subtitle;
+}).catch(() => {});
 
 function setTab(name) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  const tabs = ['solicitar','cola'];
-  document.querySelectorAll('.tab')[tabs.indexOf(name)].classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
-  if (name === 'cola') loadCola();
+  document.getElementById('tab1').classList.toggle('active', name==='request');
+  document.getElementById('tab2').classList.toggle('active', name==='queue');
+  document.getElementById('panel-request').classList.toggle('active', name==='request');
+  document.getElementById('panel-queue').classList.toggle('active', name==='queue');
+  if (name==='queue') loadQueue();
 }
 
 function showToast(msg, isError=false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.className = 'toast' + (isError ? ' error' : '') + ' show';
-  setTimeout(() => t.classList.remove('show'), 3000);
+  t.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(() => t.classList.remove('show'), 3500);
 }
 
-function onSearch(q) {
-  clearTimeout(searchTimer);
-  if (q.length < 2) { document.getElementById('resultados').innerHTML = ''; return; }
-  document.getElementById('spinner').style.display = 'block';
-  searchTimer = setTimeout(() => buscar(q), 500);
+function showDJNotif(msg, type, duration=5000) {
+  const n = document.getElementById('djNotif');
+  n.textContent = msg;
+  n.className = 'dj-notif show ' + type;
+  setTimeout(() => n.classList.remove('show'), duration);
 }
 
-let solicitudWS = null;
-
-function conectarWSSolicitud(solicitudId) {
+function conectarWS(solicitudId) {
   if (solicitudWS) solicitudWS.close();
-  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  solicitudWS = new WebSocket(`${protocol}//${location.host}/ws/usuario/${solicitudId}`);
+  const protocol = location.protocol==='https:' ? 'wss:' : 'ws:';
+  solicitudWS = new WebSocket(protocol+'//'+location.host+'/ws/usuario/'+solicitudId);
   solicitudWS.onmessage = (e) => {
     const msg = JSON.parse(e.data);
-    const tipos = {
-      aprobada: { clase: 'approved', duracion: 5000 },
-      rechazada: { clase: 'rejected', duracion: 6000 },
-      reproducida: { clase: 'played', duracion: 6000 },
-      next_song: { clase: 'nextsong', duracion: 8000 }
+    const msgs = {
+      en: { aprobada:'✅ The DJ has your song! Coming soon 🎶', reproducida:'🎉 Your song is playing NOW!', next_song:'⚡ Get ready! Your song is NEXT 🔥' },
+      es: { aprobada:'✅ ¡El DJ tiene tu canción! Viene pronto 🎶', reproducida:'🎉 ¡Tu canción suena AHORA!', next_song:'⚡ ¡Prepárate! Tu canción es la SIGUIENTE 🔥' }
     };
-    const t = tipos[msg.tipo];
-    if (t) {
-      const n = document.getElementById('djNotif');
-      n.textContent = msg.mensaje;
-      n.className = `dj-notif show ${t.clase}`;
-      setTimeout(() => n.classList.remove('show'), t.duracion);
+    const tipos = { aprobada:'approved', reproducida:'reproducida', next_song:'next_song' };
+    if (msg.tipo === 'rechazada') {
+      showRetryModal();
+    } else {
+      showDJNotif(msgs[lang][msg.tipo] || msg.mensaje, tipos[msg.tipo] || 'approved', msg.tipo==='next_song' ? 8000 : 5000);
     }
   };
 }
 
+function onSearch(q) {
+  clearTimeout(searchTimer);
+  if (q.length < 2) { document.getElementById('results').innerHTML=''; return; }
+  document.getElementById('spinner').style.display = 'block';
+  searchTimer = setTimeout(() => buscar(q), 500);
+}
+
 async function buscar(q) {
-  const res = await fetch(`/api/buscar?q=${encodeURIComponent(q)}`);
+  const res = await fetch('/api/buscar?q='+encodeURIComponent(q));
   const tracks = await res.json();
   document.getElementById('spinner').style.display = 'none';
-  const container = document.getElementById('resultados');
-  if (!tracks.length) { container.innerHTML = '<div class="empty">No se encontraron canciones 😕</div>'; return; }
-  container.innerHTML = tracks.map(t => `
+  const c = document.getElementById('results');
+  if (!tracks.length) { c.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">'+(lang==='en'?'No results':'Sin resultados')+'</div></div>'; return; }
+  c.innerHTML = tracks.map(t => `
     <div class="track-card" onclick="selectTrack(${JSON.stringify(t).replace(/"/g,'&quot;')})" data-id="${t.spotify_id}">
-      <img src="${t.portada_url}" alt="">
-      <div class="track-info">
+      <img class="track-img" src="${t.portada_url}" alt="">
+      <div style="flex:1;min-width:0">
         <div class="track-name">${t.cancion}</div>
         <div class="track-artist">${t.artista}</div>
       </div>
-    </div>
-  `).join('');
+      <div class="track-check"></div>
+    </div>`).join('');
 }
 
 function selectTrack(track) {
   selectedTrack = track;
   document.querySelectorAll('.track-card').forEach(c => c.classList.remove('selected'));
-  document.querySelector(`[data-id="${track.spotify_id}"]`).classList.add('selected');
-  document.getElementById('selectedPreview').innerHTML = `
-    <img src="${track.portada_url}" alt="">
-    <div><div style="font-weight:700">${track.cancion}</div><div style="color:var(--muted);font-size:0.8rem">${track.artista}</div></div>
-  `;
-  document.getElementById('formSection').classList.add('visible');
-  document.getElementById('formSection').scrollIntoView({behavior:'smooth'});
+  const card = document.querySelector('[data-id="'+track.spotify_id+'"]');
+  if (card) { card.classList.add('selected'); card.querySelector('.track-check').textContent='✓'; }
+  document.getElementById('selectedCard').innerHTML = '<img src="'+track.portada_url+'" style="width:48px;height:48px;border-radius:2px"><div><div style="font-weight:700;font-size:0.9rem">'+track.cancion+'</div><div style="color:var(--gray-600);font-size:0.78rem;margin-top:2px">'+track.artista+'</div></div>';
+  document.getElementById('selectedSection').classList.add('visible');
+  document.getElementById('selectedSection').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-
-document.getElementById('dedicatoria').addEventListener('input', function() {
-  document.getElementById('charCount').textContent = this.value.length;
-});
 
 async function enviarSolicitud() {
   if (!selectedTrack) return;
   const btn = document.getElementById('submitBtn');
-  btn.disabled = true; btn.textContent = 'Enviando...';
+  btn.disabled = true;
+  btn.querySelector('span').textContent = lang==='en' ? 'Sending...' : 'Enviando...';
   const res = await fetch('/api/solicitar', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-      evento_id: EVENTO_ID,
-      cancion: selectedTrack.cancion,
-      artista: selectedTrack.artista,
-      spotify_id: selectedTrack.spotify_id,
-      portada_url: selectedTrack.portada_url,
-      dedicatoria: document.getElementById('dedicatoria').value
-    })
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ evento_id:EVENTO_ID, cancion:selectedTrack.cancion, artista:selectedTrack.artista, spotify_id:selectedTrack.spotify_id, portada_url:selectedTrack.portada_url, dedicatoria:document.getElementById('dedicatoria').value })
   });
   const data = await res.json();
   if (res.ok) {
-    showToast('✅ ¡Solicitud enviada! El DJ la revisará pronto');
-    conectarWSSolicitud(data.id);
-    selectedTrack = null;
-    document.getElementById('searchInput').value = '';
-    document.getElementById('resultados').innerHTML = '';
-    document.getElementById('formSection').classList.remove('visible');
-    document.getElementById('dedicatoria').value = '';
-    btn.textContent = '🎶 Enviar solicitud';
-    btn.disabled = false;
+    showToast(lang==='en' ? '✅ Request sent! The DJ will review it' : '✅ ¡Solicitud enviada! El DJ la revisará');
+    conectarWS(data.id);
+    resetForm();
   } else {
-    showToast(data.detail || 'Error al enviar', true);
-    btn.textContent = '🎶 Enviar solicitud';
-    btn.disabled = false;
+    showToast(data.detail || (lang==='en'?'Error sending':'Error al enviar'), true);
   }
+  btn.disabled = false;
+  btn.querySelector('span').textContent = lang==='en' ? 'Send Request' : 'Enviar Solicitud';
 }
 
-async function loadCola() {
-  const res = await fetch(`/api/cola/${EVENTO_ID}`);
+function showRetryModal() {
+  const modal = document.getElementById('retryModal');
+  const title = document.getElementById('retryTitle');
+  const sub = document.getElementById('retrySub');
+  if (lang === 'en') {
+    title.textContent = "Not available right now";
+    sub.textContent = "The DJ doesn't have that one tonight, but the night is young — request another!";
+    document.querySelector('.btn-retry:not(.secondary)').textContent = '🎵 Try Another Song';
+    document.querySelector('.btn-retry.secondary').textContent = 'Maybe Later';
+  } else {
+    title.textContent = "No disponible ahorita";
+    sub.textContent = "El DJ no la tiene esta noche, ¡pero la noche es larga — pide otra!";
+    document.querySelector('.btn-retry:not(.secondary)').textContent = '🎵 Pide Otra Canción';
+    document.querySelector('.btn-retry.secondary').textContent = 'Quizás después';
+  }
+  modal.classList.add('show');
+}
+
+function retryRequest() {
+  closeRetry();
+  resetForm();
+  setTab('request');
+  setTimeout(() => {
+    document.getElementById('searchInput').focus();
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }, 300);
+}
+
+function resetForm() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('selectedSection').classList.remove('visible');
+  document.getElementById('dedicatoria').value = '';
+  document.getElementById('charCount').textContent = '0';
+  document.getElementById('selectedCard').innerHTML = '';
+  // Limpiar cualquier mensaje de confirmacion post-envio
+  const confirmMsg = document.getElementById('confirmMsg');
+  if (confirmMsg) confirmMsg.style.display = 'none';
+  selectedTrack = null;
+  if (solicitudWS) { solicitudWS.close(); solicitudWS = null; }
+}
+
+function closeRetry() {
+  document.getElementById('retryModal').classList.remove('show');
+}
+
+async function loadQueue() {
+  const res = await fetch('/api/cola/'+EVENTO_ID);
   const items = await res.json();
-  const c = document.getElementById('colaContainer');
-  if (!items.length) { c.innerHTML = '<div class="empty">🎧 No hay solicitudes aún.<br>¡Sé el primero!</div>'; return; }
+  const c = document.getElementById('queueContainer');
+  if (!items.length) { c.innerHTML='<div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">'+(lang==='en'?'No requests yet':'Sin solicitudes aún')+'</div></div>'; return; }
   c.innerHTML = items.map(s => `
-    <div class="cola-item" id="cola-${s.id}">
-      <img src="${s.portada_url || 'https://via.placeholder.com/48'}" alt="">
-      <div class="cola-info">
-        <div class="cola-name">${s.cancion}</div>
-        <div class="cola-artist">${s.artista}</div>
-        ${s.dedicatoria ? `<div class="cola-dedicatoria">💬 "${s.dedicatoria}"</div>` : ''}
-        <span class="estado-badge estado-${s.estado}">${s.estado}</span>
+    <div class="queue-item">
+      <img class="queue-img" src="${s.portada_url||'https://via.placeholder.com/48'}" alt="">
+      <div style="flex:1;min-width:0">
+        <div class="queue-name">${s.cancion}</div>
+        <div class="queue-artist">${s.artista}</div>
+        ${s.dedicatoria?'<div class="queue-dedic">💬 "'+s.dedicatoria+'"</div>':''}
+        <span class="status-pill status-${s.estado}">${s.estado}</span>
       </div>
-      <button class="vote-btn ${votados.includes(s.id) ? 'voted' : ''}" onclick="votar(${s.id}, this)">
-        <span>🔥</span>${s.votos}
-      </button>
-    </div>
-  `).join('');
+      <div>
+        <button class="vote-btn ${votados.includes(s.id)?'voted':''}" onclick="votar(${s.id},this)">🔥<br>${s.votos}</button>
+      </div>
+    </div>`).join('');
 }
 
 async function votar(id, btn) {
-  if (votados.includes(id)) { showToast('Ya votaste por esta canción', true); return; }
-  const res = await fetch(`/api/votar/${id}`, {method:'POST'});
+  if (votados.includes(id)) { showToast(lang==='en'?'Already voted!':'¡Ya votaste!', true); return; }
+  const res = await fetch('/api/votar/'+id, {method:'POST'});
   const data = await res.json();
   if (res.ok) {
-    votados.push(id);
-    localStorage.setItem('votados', JSON.stringify(votados));
-    btn.classList.add('voted');
-    btn.innerHTML = `<span>🔥</span>${data.votos}`;
-    showToast('🔥 ¡Voto registrado!');
-  } else {
-    showToast(data.detail || 'Error', true);
+    votados.push(id); localStorage.setItem('votados', JSON.stringify(votados));
+    btn.classList.add('voted'); btn.innerHTML='🔥<br>'+data.votos;
+    showToast(lang==='en'?'🔥 Vote registered!':'🔥 ¡Voto registrado!');
   }
 }
 </script>
