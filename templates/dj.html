@@ -493,7 +493,7 @@ function renderQueue() {
 
 async function actualizar(id, estado) {
   const res = await fetch(`/api/dj/estado/${id}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:PASSWORD,estado}) });
-  if (res.ok) { const s=solicitudes.find(x=>x.id===id); if(s)s.estado=estado; renderQueue(); }
+  if (!res.ok) { showNotif("Error: " + res.status + " PASSWORD=" + PASSWORD, "error"); } if (res.ok) { const s=solicitudes.find(x=>x.id===id); if(s)s.estado=estado; renderQueue(); }
 }
 
 async function enviarNextSong(id, cancion) {
