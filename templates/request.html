@@ -336,7 +336,7 @@ function resetForm() {
   const confirmMsg = document.getElementById('confirmMsg');
   if (confirmMsg) confirmMsg.style.display = 'none';
   selectedTrack = null;
-  if (solicitudWS) { solicitudWS.close(); solicitudWS = null; }
+  // No cerrar WS aqui - esperar notificacion del DJ
 }
 
 function closeRetry() {
