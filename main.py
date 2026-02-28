@@ -327,8 +327,8 @@ async def qr_code():
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     buf.seek(0)
-    return FileResponse(buf, media_type="image/png",
-        headers={"Content-Disposition": "inline; filename=qr_dj.png"})
+    from fastapi.responses import StreamingResponse
+    return StreamingResponse(buf, media_type="image/png")
 
 @app.get("/qr/page", response_class=HTMLResponse)
 async def qr_page(request: Request):

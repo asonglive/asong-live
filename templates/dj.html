@@ -310,14 +310,14 @@
 <div class="notif" id="notif"></div>
 
 <script>
-let PASSWORD='', solicitudes=[], filtro='todas', ws;
+let PASSWORD=sessionStorage.getItem('djpass')||'', solicitudes=[], filtro='todas', ws;
 let config = JSON.parse(localStorage.getItem('djConfig')||'{}');
 
 async function login() {
   const pwd = document.getElementById('pwdInput').value;
   const res = await fetch(`/api/dj/solicitudes?password=${encodeURIComponent(pwd)}`);
   if (res.ok) {
-    PASSWORD = pwd;
+    PASSWORD = pwd; sessionStorage.setItem('djpass', pwd);
     solicitudes = await res.json();
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('djPanel').style.display = 'block';
@@ -453,9 +453,9 @@ function conectarWS() {
   ws.onclose = () => { document.getElementById('wsDot').classList.remove('live'); document.getElementById('wsLabel').textContent='Reconectando'; setTimeout(conectarWS,3000); };
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
-    if (msg.tipo==='nueva_solicitud') { solicitudes.unshift(msg.solicitud); renderQueue(); showNotif(`🎵 ${msg.solicitud.cancion} — ${msg.solicitud.artista}`,'success'); }
-    else if (msg.tipo==='voto') { const s=solicitudes.find(x=>x.id===msg.solicitud_id); if(s){s.votos=msg.votos;renderQueue();} }
-    else if (msg.tipo==='estado_actualizado') { const s=solicitudes.find(x=>x.id===msg.solicitud_id); if(s){s.estado=msg.estado;renderQueue();} }
+    if (msg.tipo==='nueva_solicitud') { solicitudes.unshift({id:msg.id,cancion:msg.cancion,artista:msg.artista,portada_url:msg.portada_url,dedicatoria:msg.dedicatoria,estado:'pendiente',votos:0}); renderQueue(); showNotif(`🎵 ${msg.cancion} — ${msg.artista}`,'success'); }
+    else if (msg.tipo==='voto') { const s=solicitudes.find(x=>x.id===msg.id); if(s){s.votos=msg.votos;renderQueue();} }
+    else if (msg.tipo==='estado_actualizado') { const s=solicitudes.find(x=>x.id===msg.id); if(s){s.estado=msg.estado;renderQueue();} }
   };
 }
 
