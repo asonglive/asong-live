@@ -424,16 +424,27 @@ async function loadConfig() {
   updateHeader(); updateLogo(); updateTipButtons();
 }
 
+function getVal(id) {
+  const a = document.getElementById(id);
+  const b = document.getElementById(id+'2');
+  return (a&&a.value) ? a.value : (b&&b.value) ? b.value : '';
+}
+
 async function saveConfig() {
   const newConfig = {
     password: PASSWORD,
-    event_name: document.getElementById('cfgEventName').value,
-    subtitle: document.getElementById('cfgSubtitle').value,
-    logo_url: document.getElementById('cfgLogo').value,
-    cashapp: document.getElementById('cfgCashapp').value,
-    venmo: document.getElementById('cfgVenmo').value,
-    applepay: document.getElementById('cfgApplepay').value,
-    love_text: document.getElementById('cfgLoveText').value || 'Show Your Love',
+    event_name: getVal('cfgEventName'),
+    subtitle: getVal('cfgSubtitle'),
+    logo_url: getVal('cfgLogo'),
+    cashapp: getVal('cfgCashapp'),
+    venmo: getVal('cfgVenmo'),
+    applepay: getVal('cfgApplepay'),
+    love_text: getVal('cfgLoveText') || 'Show Your Love',
+    instagram: getVal('cfgInstagram'),
+    tiktok: getVal('cfgTiktok'),
+    facebook: getVal('cfgFacebook'),
+    spotify_dj: getVal('cfgSpotifyDj'),
+    website: getVal('cfgWebsite'),
   };
   const res = await fetch('/api/dj/config', {
     method: 'POST',
