@@ -204,7 +204,7 @@
         <div id="msgPreview" style="margin-top:4px;font-size:0.75rem;color:var(--gray-400);min-height:16px;font-style:italic"></div>
       </div>
       <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;padding-top:20px">
-        <button onclick="sendMessageMain('white')" style="padding:8px 14px;background:var(--black);color:var(--white);border:none;border-radius:20px;font-size:0.7rem;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap">📤 Send</button>
+        <a href="/display" target="_blank" style="padding:8px 14px;background:var(--black);color:var(--white);border-radius:20px;font-size:0.7rem;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap;text-decoration:none;text-align:center">⛶ Display</a>
         <button onclick="sendMessageMain('orange')" style="padding:8px 14px;background:var(--orange);color:#fff;border:none;border-radius:20px;font-size:0.7rem;font-weight:700;letter-spacing:1px;cursor:pointer;white-space:nowrap">🔥 Destaca</button>
         <button onclick="clearMessageMain()" style="padding:8px 14px;background:transparent;color:var(--gray-400);border:1.5px solid var(--gray-200);border-radius:20px;font-size:0.7rem;font-weight:700;letter-spacing:1px;cursor:pointer">✕ Clear</button>
       </div>
@@ -218,7 +218,7 @@
       <button onclick="addEmojiMain('🎶')" style="background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;padding:4px 8px;cursor:pointer;font-size:0.9rem">🎶</button>
       <button onclick="addEmojiMain('⭐')" style="background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;padding:4px 8px;cursor:pointer;font-size:0.9rem">⭐</button>
       <button onclick="addEmojiMain('🥂')" style="background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;padding:4px 8px;cursor:pointer;font-size:0.9rem">🥂</button>
-      <a href="/display" target="_blank" style="padding:4px 10px;background:var(--black);color:var(--white);border-radius:8px;font-size:0.7rem;font-weight:700;text-decoration:none;display:flex;align-items:center">⛶ Display</a>
+      <button onclick="sendMessageMain('white')" style="padding:6px 16px;background:var(--black);color:var(--white);border:none;border-radius:8px;font-size:0.8rem;font-weight:700;letter-spacing:1px;cursor:pointer">📤 Send</button>
     </div>
   </div>
 
@@ -340,14 +340,27 @@
 <div class="notif" id="notif"></div>
 
 <script>
-let PASSWORD='', solicitudes=[], filtro='todas', ws;
+let PASSWORD=localStorage.getItem('djpass')||'', solicitudes=[], filtro='todas', ws;
 let config = JSON.parse(localStorage.getItem('djConfig')||'{}');
+
+// Auto-login si hay password guardado
+window.addEventListener('load', async () => {
+  if (PASSWORD) {
+    const res = await fetch(`/api/dj/solicitudes?password=${encodeURIComponent(PASSWORD)}`);
+    if (res.ok) {
+      solicitudes = await res.json();
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('djPanel').style.display = 'block';
+      loadConfig(); renderQueue(); conectarWS();
+    } else { localStorage.removeItem('djpass'); PASSWORD = ''; }
+  }
+});
 
 async function login() {
   const pwd = document.getElementById('pwdInput').value;
   const res = await fetch(`/api/dj/solicitudes?password=${encodeURIComponent(pwd)}`);
   if (res.ok) {
-    PASSWORD = pwd;
+    PASSWORD = pwd; localStorage.setItem('djpass', pwd);
     solicitudes = await res.json();
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('djPanel').style.display = 'block';
@@ -505,7 +518,7 @@ function setFilter(f,btn) { filtro=f; document.querySelectorAll('.pill').forEach
 
 function renderQueue() {
   const filtered = filtro==='todas' ? solicitudes.filter(s=>s.estado!=='reproducida'&&s.estado!=='rechazada') : solicitudes.filter(s=>s.estado===filtro);
-  const sorted = [...filtered].sort((a,b)=> b.votos !== a.votos ? b.votos-a.votos : b.id-a.id);
+  const sorted = [...filtered].sort((a,b)=> b.votos !== a.votos ? b.votos-a.votos : a.id-b.id);
   document.getElementById('statTotal').textContent = solicitudes.length;
   document.getElementById('statPendientes').textContent = solicitudes.filter(s=>s.estado==='pendiente').length;
   document.getElementById('statAprobadas').textContent = solicitudes.filter(s=>s.estado==='aprobada').length;
