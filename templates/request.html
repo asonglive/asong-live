@@ -10,93 +10,117 @@
   :root {
     --black:#0a0a0a; --white:#f5f5f0; --gray-100:#f0f0eb;
     --gray-200:#e0e0d8; --gray-400:#999990; --gray-600:#555550;
-    --orange:#FF6B2B; --green:#1a6b3a; --green-light:#e8f5ee;
-    --red:#8b1a1a; --red-light:#fceaea; --gold:#b8960c;
+    --orange:#FF6B2B; --orange-dim:rgba(255,107,43,0.1);
+    --green:#1a6b3a; --green-light:#e8f5ee;
+    --red:#8b1a1a; --red-light:#fceaea;
   }
   body { background:var(--white); color:var(--black); font-family:'DM Sans',sans-serif; min-height:100vh; }
 
-  .header { background:var(--black); padding:16px 20px; position:sticky; top:0; z-index:100; }
-  .header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .header { background:var(--black); padding:14px 20px; position:sticky; top:0; z-index:100; }
+  .header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
   .logo { display:flex; align-items:center; gap:10px; }
-  .logo-text { font-family:'Bebas Neue','Arial Black',sans-serif; font-size:1.5rem; letter-spacing:2px; color:#f5f5f0; line-height:1; }
-  .logo-text span { color:#FF6B2B; }
+  .logo-text { font-family:'Bebas Neue',sans-serif; font-size:1.5rem; letter-spacing:2px; color:var(--white); line-height:1; }
+  .logo-text span { color:var(--orange); }
   .lang-toggle { display:flex; gap:2px; background:#1a1a1a; border-radius:4px; padding:3px; }
-  .lang-btn { padding:4px 10px; border-radius:2px; font-size:0.7rem; font-weight:600; letter-spacing:1px; border:none; cursor:pointer; transition:all .2s; background:transparent; color:var(--gray-400); }
+  .lang-btn { padding:4px 10px; border-radius:2px; font-size:0.7rem; font-weight:700; letter-spacing:1px; border:none; cursor:pointer; transition:all .2s; background:transparent; color:var(--gray-400); }
   .lang-btn.active { background:var(--white); color:var(--black); }
-  .event-name { font-family:'Bebas Neue','Arial Black',sans-serif; font-size:1.8rem; letter-spacing:2px; color:#f5f5f0; line-height:1; }
-  .event-sub { color:var(--gray-400); font-size:0.7rem; letter-spacing:2px; text-transform:uppercase; margin-top:3px; }
+  .event-name { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; letter-spacing:2px; color:var(--white); line-height:1; }
+  .event-sub { color:var(--gray-400); font-size:0.65rem; letter-spacing:2px; text-transform:uppercase; margin-top:2px; }
 
-  .tabs { display:flex; background:var(--white); border-bottom:1.5px solid var(--gray-200); position:sticky; top:95px; z-index:99; }
-  .tab { flex:1; padding:14px; text-align:center; font-size:0.75rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--gray-400); cursor:pointer; border-bottom:2px solid transparent; transition:all .2s; }
-  .tab.active { color:var(--black); border-bottom-color:var(--black); }
+  .main { padding:20px; display:flex; flex-direction:column; gap:20px; }
 
-  .panel { display:none; padding:20px; }
-  .panel.active { display:block; }
+  .section-label { font-size:0.62rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-400); margin-bottom:10px; }
 
-  .search-hint { font-size:0.72rem; color:var(--gray-400); letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
-  .search-wrap { position:relative; margin-bottom:16px; }
-  .search-input { width:100%; background:var(--gray-100); border:1.5px solid var(--gray-200); border-radius:3px; padding:14px 44px 14px 16px; font-family:'DM Sans',sans-serif; font-size:0.95rem; color:var(--black); outline:none; transition:border .2s; }
-  .search-input:focus { border-color:var(--black); background:var(--white); }
+  /* SEARCH */
+  .search-wrap { position:relative; }
+  .search-input { width:100%; background:var(--white); border:2px solid var(--gray-400); border-radius:3px; padding:14px 44px 14px 16px; font-family:'DM Sans',sans-serif; font-size:0.95rem; color:var(--black); outline:none; transition:border .2s; }
+  .search-input:focus { border-color:var(--black); }
+  .search-input::placeholder { color:var(--gray-400); }
   .search-icon { position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--gray-400); }
-  .spinner { text-align:center; padding:20px; color:var(--gray-400); font-size:0.8rem; letter-spacing:2px; text-transform:uppercase; display:none; }
+  .spinner { text-align:center; padding:16px; color:var(--gray-400); font-size:0.75rem; letter-spacing:2px; text-transform:uppercase; display:none; }
 
-  .track-card { display:flex; align-items:center; gap:12px; padding:12px; border-radius:3px; border:1.5px solid var(--gray-200); margin-bottom:8px; cursor:pointer; transition:all .2s; background:var(--white); }
-  .track-card:hover, .track-card.selected { border-color:var(--black); }
-  .track-card.selected { background:var(--gray-100); }
-  .track-img { width:52px; height:52px; border-radius:2px; object-fit:cover; flex-shrink:0; }
+  /* TRACK CARDS */
+  .track-card { display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:3px; border:1.5px solid var(--gray-200); margin-bottom:8px; cursor:pointer; transition:all .2s; background:var(--white); }
+  .track-card:active { background:var(--gray-100); }
+  .track-card.selected { border-color:var(--black); background:var(--gray-100); }
+  .track-img { width:48px; height:48px; border-radius:2px; object-fit:cover; flex-shrink:0; }
   .track-name { font-weight:700; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .track-artist { color:var(--gray-600); font-size:0.78rem; margin-top:2px; }
-  .track-check { margin-left:auto; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--gray-200); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .2s; }
-  .track-card.selected .track-check { background:var(--black); border-color:var(--black); color:#fff; font-size:0.7rem; font-weight:700; }
+  .track-artist { color:var(--gray-600); font-size:0.75rem; margin-top:2px; }
+  .track-check { margin-left:auto; width:24px; height:24px; border-radius:50%; border:2px solid var(--gray-200); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .2s; font-size:0.7rem; font-weight:700; }
+  .track-card.selected .track-check { background:var(--black); border-color:var(--black); color:var(--white); }
 
-  .selected-section { margin-top:20px; display:none; }
+  /* SELECTED */
+  .selected-section { display:none; }
   .selected-section.visible { display:block; }
-  .divider { height:1px; background:var(--gray-200); margin:16px 0; }
-  .section-label { font-size:0.65rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-400); margin-bottom:10px; }
-  .selected-card { background:var(--gray-100); border:1.5px solid var(--gray-200); border-radius:3px; padding:12px; display:flex; gap:12px; align-items:center; margin-bottom:14px; }
-  .selected-card img { width:48px; height:48px; border-radius:2px; flex-shrink:0; }
+  .selected-card { display:flex; gap:14px; align-items:center; background:var(--black); border-radius:4px; padding:14px; margin-bottom:14px; }
+  .selected-img { width:64px; height:64px; border-radius:3px; object-fit:cover; flex-shrink:0; }
+  .selected-label { font-size:0.6rem; letter-spacing:2px; text-transform:uppercase; color:var(--orange); margin-bottom:4px; }
+  .selected-name { font-weight:700; font-size:1rem; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .selected-artist { color:var(--gray-400); font-size:0.75rem; margin-top:2px; }
+  .btn-clear { background:transparent; border:none; color:var(--gray-400); font-size:1.2rem; cursor:pointer; padding:4px; flex-shrink:0; }
 
-  .dedic-input { width:100%; background:var(--gray-100); border:1.5px solid var(--gray-200); border-radius:3px; padding:12px 14px; font-family:'DM Sans',sans-serif; font-size:0.88rem; color:var(--black); outline:none; resize:none; transition:border .2s; }
+  .dedic-input { width:100%; background:var(--gray-100); border:2px solid var(--gray-200); border-radius:3px; padding:12px 14px; font-family:'DM Sans',sans-serif; font-size:0.88rem; color:var(--black); outline:none; resize:none; transition:border .2s; }
   .dedic-input:focus { border-color:var(--black); background:var(--white); }
-  .char-count { text-align:right; font-size:0.7rem; color:var(--gray-400); margin-top:4px; }
+  .char-count { text-align:right; font-size:0.65rem; color:var(--gray-400); margin-top:4px; margin-bottom:12px; }
 
-  .btn-submit { width:100%; margin-top:14px; padding:16px; background:var(--black); color:var(--white); border:none; border-radius:3px; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:700; letter-spacing:3px; text-transform:uppercase; cursor:pointer; transition:opacity .2s; }
-  .btn-submit:hover { opacity:0.8; }
+  .btn-submit { width:100%; padding:16px; background:var(--orange); color:var(--white); border:none; border-radius:3px; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:700; letter-spacing:3px; text-transform:uppercase; cursor:pointer; transition:opacity .2s; }
   .btn-submit:disabled { opacity:0.4; cursor:not-allowed; }
 
+  /* CONFIRM CARD */
+  .confirm-card { display:none; background:var(--black); border-radius:6px; padding:20px; text-align:center; }
+  .confirm-card.visible { display:block; }
+  .confirm-img { width:80px; height:80px; border-radius:4px; object-fit:cover; margin:0 auto 12px; display:block; }
+  .confirm-title { font-family:'Bebas Neue',sans-serif; font-size:1.2rem; letter-spacing:2px; color:var(--orange); margin-bottom:4px; }
+  .confirm-song { font-weight:700; font-size:1rem; color:var(--white); margin-bottom:2px; }
+  .confirm-artist { font-size:0.75rem; color:var(--gray-400); margin-bottom:12px; }
+  .confirm-status { font-size:0.7rem; letter-spacing:2px; text-transform:uppercase; color:var(--gray-400); }
+  .confirm-status.approved { color:#4CAF50; }
+  .confirm-status.next { color:var(--orange); }
+
+  /* DIVIDER */
+  .divider { height:1px; background:var(--gray-200); }
+
+  /* QUEUE */
+  .queue-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .queue-count { background:var(--orange); color:var(--white); border-radius:20px; padding:2px 10px; font-size:0.7rem; font-weight:700; }
+
   .queue-item { display:flex; gap:12px; align-items:center; padding:12px; background:var(--white); border:1.5px solid var(--gray-200); border-radius:3px; margin-bottom:8px; }
+  .queue-item.my-song { border-color:var(--orange); background:var(--orange-dim); }
   .queue-img { width:48px; height:48px; border-radius:2px; object-fit:cover; flex-shrink:0; }
   .queue-name { font-weight:700; font-size:0.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .queue-artist { color:var(--gray-600); font-size:0.75rem; margin-top:2px; }
-  .queue-dedic { color:var(--gray-400); font-size:0.72rem; margin-top:4px; font-style:italic; }
-  .vote-btn { background:var(--gray-100); border:1.5px solid var(--gray-200); border-radius:3px; padding:6px 10px; font-size:0.75rem; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:1px; transition:all .2s; min-width:44px; }
-  .vote-btn.voted { border-color:var(--black); background:var(--black); color:var(--white); }
-  .status-pill { font-size:0.6rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:2px 8px; border-radius:20px; }
+  .queue-dedic { color:var(--gray-400); font-size:0.7rem; margin-top:3px; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .queue-meta { display:flex; align-items:center; gap:6px; margin-top:4px; flex-wrap:wrap; }
+  .status-pill { font-size:0.58rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:2px 8px; border-radius:20px; }
   .status-pendiente { background:var(--gray-100); color:var(--gray-400); }
   .status-aprobada { background:var(--green-light); color:var(--green); }
+  .my-tag { font-size:0.58rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:2px 8px; border-radius:20px; background:var(--orange-dim); color:var(--orange); border:1px solid var(--orange); }
 
-  .dj-notif { position:fixed; top:0; left:0; right:0; z-index:200; padding:18px 20px; text-align:center; font-family:'Bebas Neue','Arial Black',sans-serif; font-size:1.1rem; letter-spacing:2px; transform:translateY(-100%); transition:transform .4s cubic-bezier(.175,.885,.32,1.275); }
+  .vote-btn { background:var(--gray-100); border:1.5px solid var(--gray-200); border-radius:3px; padding:6px 10px; font-size:0.75rem; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:1px; transition:all .2s; min-width:44px; flex-shrink:0; }
+  .vote-btn.voted { border-color:var(--orange); background:var(--orange); color:var(--white); }
+
+  .empty { text-align:center; padding:32px 20px; color:var(--gray-400); }
+  .empty-icon { font-size:2rem; margin-bottom:8px; }
+  .empty-text { font-size:0.75rem; letter-spacing:2px; text-transform:uppercase; }
+
+  /* NOTIFICATIONS */
+  .dj-notif { position:fixed; top:0; left:0; right:0; z-index:200; padding:16px 20px; text-align:center; font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:2px; transform:translateY(-100%); transition:transform .4s cubic-bezier(.175,.885,.32,1.275); }
   .dj-notif.show { transform:translateY(0); }
   .dj-notif.approved { background:var(--green); color:#fff; }
   .dj-notif.rejected { background:var(--red); color:#fff; }
   .dj-notif.reproducida { background:var(--black); color:#fff; }
   .dj-notif.next_song { background:var(--orange); color:#fff; }
 
-  .toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--black); color:var(--white); padding:12px 24px; border-radius:3px; font-size:0.8rem; font-weight:600; letter-spacing:1px; transition:transform .3s; z-index:999; white-space:nowrap; }
+  .toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--black); color:var(--white); padding:12px 24px; border-radius:3px; font-size:0.8rem; font-weight:600; letter-spacing:1px; transition:transform .3s; z-index:999; white-space:nowrap; max-width:90vw; text-align:center; }
   .toast.error { background:var(--red); }
   .toast.show { transform:translateX(-50%) translateY(0); }
 
-  .empty { text-align:center; padding:48px 20px; color:var(--gray-400); }
-  .empty-icon { font-size:2.5rem; margin-bottom:10px; }
-  .empty-text { font-size:0.8rem; letter-spacing:2px; text-transform:uppercase; }
-
   .retry-modal { position:fixed; bottom:0; left:0; right:0; z-index:300; background:var(--white); border-top:2px solid var(--black); padding:24px 20px; transform:translateY(100%); transition:transform .4s cubic-bezier(.175,.885,.32,1.275); }
   .retry-modal.show { transform:translateY(0); }
-  .retry-icon { font-size:2.5rem; text-align:center; margin-bottom:10px; }
-  .retry-title { font-family:'Bebas Neue','Arial Black',sans-serif; font-size:1.4rem; letter-spacing:2px; text-align:center; margin-bottom:6px; }
+  .retry-icon { font-size:2rem; text-align:center; margin-bottom:8px; }
+  .retry-title { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:2px; text-align:center; margin-bottom:6px; }
   .retry-sub { color:var(--gray-600); font-size:0.82rem; text-align:center; margin-bottom:20px; line-height:1.5; }
-  .btn-retry { width:100%; padding:15px; background:var(--black); color:var(--white); border:none; border-radius:3px; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; cursor:pointer; margin-bottom:10px; transition:opacity .2s; }
-  .btn-retry:hover { opacity:0.8; }
+  .btn-retry { width:100%; padding:15px; background:var(--black); color:var(--white); border:none; border-radius:3px; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; cursor:pointer; margin-bottom:10px; }
   .btn-retry.secondary { background:transparent; color:var(--gray-400); border:1.5px solid var(--gray-200); }
 </style>
 </head>
@@ -125,120 +149,138 @@
   <div class="event-sub" id="eventSub">Request your song</div>
 </div>
 
-<div class="tabs">
-  <div class="tab active" id="tab1" onclick="setTab('request')">🎤 <span data-en="Request" data-es="Pedir">Request</span></div>
-  <div class="tab" id="tab2" onclick="setTab('queue')">📋 <span data-en="Queue" data-es="Cola">Queue</span></div>
-</div>
+<div class="main">
 
-<div class="panel active" id="panel-request">
-  <p class="search-hint" data-en="Search by song or artist" data-es="Busca por canción o artista">Search by song or artist</p>
-  <div class="search-wrap">
-    <input class="search-input" id="searchInput" type="text" placeholder="Search..." oninput="onSearch(this.value)">
-    <span class="search-icon">♪</span>
+  <!-- CONFIRM CARD -->
+  <div class="confirm-card" id="confirmCard">
+    <img class="confirm-img" id="confirmImg" src="" alt="">
+    <div class="confirm-title" id="confirmTitle">🎵 Request Sent!</div>
+    <div class="confirm-song" id="confirmSong"></div>
+    <div class="confirm-artist" id="confirmArtist"></div>
+    <div class="confirm-status" id="confirmStatus">Waiting for DJ approval...</div>
   </div>
-  <div class="spinner" id="spinner">Searching...</div>
-  <div id="results"></div>
+
+  <!-- SEARCH -->
+  <div>
+    <div class="section-label" id="searchLabel">Search by song or artist</div>
+    <div class="search-wrap">
+      <input class="search-input" id="searchInput" type="text" placeholder="Search..." oninput="onSearch(this.value)" autocomplete="off">
+      <span class="search-icon">♪</span>
+    </div>
+    <div class="spinner" id="spinner">Searching...</div>
+    <div id="results"></div>
+  </div>
+
+  <!-- SELECTED -->
   <div class="selected-section" id="selectedSection">
-    <div class="divider"></div>
-    <p class="section-label" data-en="Selected song" data-es="Canción seleccionada">Selected song</p>
-    <div class="selected-card" id="selectedCard"></div>
-    <p class="section-label" data-en="Message for the DJ (optional)" data-es="Mensaje para el DJ (opcional)">Message for the DJ (optional)</p>
-    <textarea class="dedic-input" id="dedicatoria" rows="3" maxlength="200" oninput="document.getElementById('charCount').textContent=this.value.length" placeholder="Dedicate this song..."></textarea>
+    <div class="selected-card">
+      <img class="selected-img" id="selectedImg" src="" alt="">
+      <div style="flex:1;min-width:0">
+        <div class="selected-label" id="selectedLabel">Selected</div>
+        <div class="selected-name" id="selectedName"></div>
+        <div class="selected-artist" id="selectedArtist"></div>
+      </div>
+      <button class="btn-clear" onclick="clearSelection()">✕</button>
+    </div>
+    <div class="section-label" id="dedicLabel">Message for the DJ (optional)</div>
+    <textarea class="dedic-input" id="dedicatoria" rows="2" maxlength="200" oninput="document.getElementById('charCount').textContent=this.value.length" placeholder="Dedicate this song..."></textarea>
     <div class="char-count"><span id="charCount">0</span>/200</div>
     <button class="btn-submit" id="submitBtn" onclick="enviarSolicitud()">
-      <span data-en="Send Request" data-es="Enviar Solicitud">Send Request</span>
+      <span id="submitText">Send Request</span>
     </button>
   </div>
-</div>
 
-<div class="panel" id="panel-queue">
-  <div id="queueContainer">
-    <div class="empty"><div class="empty-icon">🎵</div><div class="empty-text" data-en="No requests yet" data-es="Sin solicitudes aún">No requests yet</div></div>
+  <!-- DIVIDER -->
+  <div class="divider"></div>
+
+  <!-- QUEUE -->
+  <div>
+    <div class="queue-header">
+      <div class="section-label" style="margin-bottom:0" id="queueLabel">Song Queue</div>
+      <div class="queue-count" id="queueCount" style="display:none">0</div>
+    </div>
+    <div id="queueContainer">
+      <div class="empty"><div class="empty-icon">🎵</div><div class="empty-text" id="emptyText">No requests yet</div></div>
+    </div>
   </div>
+
 </div>
 
 <div class="retry-modal" id="retryModal">
   <div class="retry-icon">😔</div>
-  <div class="retry-title" id="retryTitle">Not available</div>
-  <div class="retry-sub" id="retrySub">The DJ doesn't have that one right now, but the night is young!</div>
-  <button class="btn-retry" onclick="retryRequest()">🎵 Try Another Song</button>
-  <button class="btn-retry secondary" onclick="closeRetry()">Maybe Later</button>
+  <div class="retry-title" id="retryTitle">Not available right now</div>
+  <div class="retry-sub" id="retrySub">The DJ doesn't have that one tonight, but the night is young!</div>
+  <button class="btn-retry" id="retryBtn" onclick="retryRequest()">🎵 Try Another Song</button>
+  <button class="btn-retry secondary" id="laterBtn" onclick="closeRetry()">Maybe Later</button>
 </div>
 <div class="toast" id="toast"></div>
 
 <script>
-const EVENTO_ID = {{ evento.id if evento else 0 }};
-const EVENTO_NOMBRE = "{{ evento.nombre if evento else 'DJ Request' }}";
+const EVENTO_ID = {{ evento.id if evento else 1 }};
 let selectedTrack = null;
 let searchTimer = null;
 let votados = JSON.parse(localStorage.getItem('votados') || '[]');
+let mySongId = null;
 let lang = navigator.language.startsWith('es') ? 'es' : 'en';
 let solicitudWS = null;
+let lastQueueHash = '';
+
+const t = {
+  en: {
+    searchLabel:'Search by song or artist', searchPlaceholder:'Search...', searching:'Searching...',
+    selectedLabel:'Selected', dedicLabel:'Message for the DJ (optional)', dedicPlaceholder:'Dedicate this song...',
+    submitText:'Send Request', sending:'Sending...', queueLabel:'Song Queue',
+    noRequests:'No requests yet', eventSub:'Request your song',
+    confirmTitle:'🎵 Request Sent!', waitingApproval:'Waiting for DJ approval...',
+    approved:'✅ DJ has your song! Coming soon 🎶', next:'⚡ Get ready! YOUR song is NEXT! 🔥',
+    retryTitle:'Not available right now', retrySub:"The DJ doesn't have that one tonight, but the night is young!",
+    retryBtn:'🎵 Try Another Song', laterBtn:'Maybe Later',
+    toastSent:'✅ Request sent!', toastVoted:'🔥 Vote registered!', toastAlready:'Already voted!',
+    notifApproved:'✅ Your song is in the queue! 🎶', notifNext:'⚡ Get ready! Your song is NEXT 🔥',
+    notifPlaying:'🎉 Your song is playing NOW!', yourSong:'Your song', noResults:'No results'
+  },
+  es: {
+    searchLabel:'Busca por canción o artista', searchPlaceholder:'Buscar...', searching:'Buscando...',
+    selectedLabel:'Seleccionada', dedicLabel:'Mensaje para el DJ (opcional)', dedicPlaceholder:'Dedica esta canción...',
+    submitText:'Enviar Solicitud', sending:'Enviando...', queueLabel:'Cola de Canciones',
+    noRequests:'Sin solicitudes aún', eventSub:'Pide tu canción',
+    confirmTitle:'🎵 ¡Solicitud Enviada!', waitingApproval:'Esperando aprobación del DJ...',
+    approved:'✅ ¡El DJ tiene tu canción! Viene pronto 🎶', next:'⚡ ¡Prepárate! Tu canción es la SIGUIENTE 🔥',
+    retryTitle:'No disponible ahorita', retrySub:'El DJ no la tiene esta noche, ¡pero la noche es larga!',
+    retryBtn:'🎵 Pide Otra Canción', laterBtn:'Quizás después',
+    toastSent:'✅ ¡Solicitud enviada!', toastVoted:'🔥 ¡Voto registrado!', toastAlready:'¡Ya votaste!',
+    notifApproved:'✅ ¡Tu canción está en la cola! 🎶', notifNext:'⚡ ¡Prepárate! Tu canción es la SIGUIENTE 🔥',
+    notifPlaying:'🎉 ¡Tu canción suena AHORA!', yourSong:'Tu canción', noResults:'Sin resultados'
+  }
+};
 
 function setLang(l) {
   lang = l;
   document.getElementById('btnEn').classList.toggle('active', l==='en');
   document.getElementById('btnEs').classList.toggle('active', l==='es');
-  document.querySelectorAll('[data-en]').forEach(el => el.textContent = el.getAttribute('data-'+l));
-  document.getElementById('eventSub').textContent = l==='en' ? 'Request your song' : 'Pide tu canción';
-  document.getElementById('searchInput').placeholder = l==='en' ? 'Search...' : 'Buscar...';
-  document.getElementById('dedicatoria').placeholder = l==='en' ? 'Dedicate this song...' : 'Dedica esta canción...';
-  document.getElementById('submitBtn').querySelector('span').textContent = l==='en' ? 'Send Request' : 'Enviar Solicitud';
+  const s = t[l];
+  document.getElementById('searchLabel').textContent = s.searchLabel;
+  document.getElementById('searchInput').placeholder = s.searchPlaceholder;
+  document.getElementById('spinner').textContent = s.searching;
+  document.getElementById('selectedLabel').textContent = s.selectedLabel;
+  document.getElementById('dedicLabel').textContent = s.dedicLabel;
+  document.getElementById('dedicatoria').placeholder = s.dedicPlaceholder;
+  document.getElementById('submitText').textContent = s.submitText;
+  document.getElementById('queueLabel').textContent = s.queueLabel;
+  document.getElementById('emptyText').textContent = s.noRequests;
+  document.getElementById('eventSub').textContent = s.eventSub;
+  document.getElementById('retryTitle').textContent = s.retryTitle;
+  document.getElementById('retrySub').textContent = s.retrySub;
+  document.getElementById('retryBtn').textContent = s.retryBtn;
+  document.getElementById('laterBtn').textContent = s.laterBtn;
 }
 
-document.getElementById('eventName').textContent = EVENTO_NOMBRE || 'DJ Request';
+fetch('/api/config/publica').then(r=>r.json()).then(cfg=>{
+  if(cfg.event_name) document.getElementById('eventName').textContent = cfg.event_name;
+  if(cfg.subtitle) document.getElementById('eventSub').textContent = cfg.subtitle;
+}).catch(()=>{});
+
 setLang(lang);
-
-// Cargar config pública del servidor
-fetch('/api/config/publica').then(r => r.json()).then(cfg => {
-  if (cfg.event_name) document.getElementById('eventName').textContent = cfg.event_name;
-  if (cfg.subtitle) document.getElementById('eventSub').textContent = cfg.subtitle;
-}).catch(() => {});
-
-function setTab(name) {
-  document.getElementById('tab1').classList.toggle('active', name==='request');
-  document.getElementById('tab2').classList.toggle('active', name==='queue');
-  document.getElementById('panel-request').classList.toggle('active', name==='request');
-  document.getElementById('panel-queue').classList.toggle('active', name==='queue');
-  if (name==='queue') loadQueue();
-}
-
-function showToast(msg, isError=false) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show' + (isError ? ' error' : '');
-  setTimeout(() => t.classList.remove('show'), 3500);
-}
-
-function showDJNotif(msg, type, duration=5000) {
-  const n = document.getElementById('djNotif');
-  n.textContent = msg;
-  n.className = 'dj-notif show ' + type;
-  setTimeout(() => n.classList.remove('show'), duration);
-}
-
-function conectarWS(solicitudId) {
-  if (solicitudWS) solicitudWS.close();
-  const protocol = location.protocol==='https:' ? 'wss:' : 'ws:';
-  solicitudWS = new WebSocket(protocol+'//'+location.host+'/ws/usuario/'+solicitudId);
-  solicitudWS.onclose = () => {
-    // Reconectar si la conexion se cae
-    setTimeout(() => { if(solicitudWS) conectarWS(solicitudId); }, 3000);
-  };
-  solicitudWS.onmessage = (e) => {
-    const msg = JSON.parse(e.data);
-    const msgs = {
-      en: { aprobada:'✅ The DJ has your song! Coming soon 🎶', reproducida:'🎉 Your song is playing NOW!', next_song:'⚡ Get ready! Your song is NEXT 🔥' },
-      es: { aprobada:'✅ ¡El DJ tiene tu canción! Viene pronto 🎶', reproducida:'🎉 ¡Tu canción suena AHORA!', next_song:'⚡ ¡Prepárate! Tu canción es la SIGUIENTE 🔥' }
-    };
-    const tipos = { aprobada:'approved', reproducida:'reproducida', next_song:'next_song' };
-    if (msg.tipo === 'rechazada') {
-      showRetryModal();
-    } else {
-      showDJNotif(msgs[lang][msg.tipo] || msg.mensaje, tipos[msg.tipo] || 'approved', msg.tipo==='next_song' ? 8000 : 5000);
-    }
-  };
-}
 
 function onSearch(q) {
   clearTimeout(searchTimer);
@@ -252,13 +294,16 @@ async function buscar(q) {
   const tracks = await res.json();
   document.getElementById('spinner').style.display = 'none';
   const c = document.getElementById('results');
-  if (!tracks.length) { c.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">'+(lang==='en'?'No results':'Sin resultados')+'</div></div>'; return; }
-  c.innerHTML = tracks.map(t => `
-    <div class="track-card" onclick="selectTrack(${JSON.stringify(t).replace(/"/g,'&quot;')})" data-id="${t.spotify_id}">
-      <img class="track-img" src="${t.portada_url}" alt="">
+  if (!tracks.length) {
+    c.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">${t[lang].noResults}</div></div>`;
+    return;
+  }
+  c.innerHTML = tracks.map(tk => `
+    <div class="track-card" onclick="selectTrack(${JSON.stringify(tk).replace(/"/g,'&quot;')})" data-id="${tk.spotify_id}">
+      <img class="track-img" src="${tk.portada_url}" alt="" onerror="this.style.display='none'">
       <div style="flex:1;min-width:0">
-        <div class="track-name">${t.cancion}</div>
-        <div class="track-artist">${t.artista}</div>
+        <div class="track-name">${tk.cancion}</div>
+        <div class="track-artist">${tk.artista}</div>
       </div>
       <div class="track-check"></div>
     </div>`).join('');
@@ -266,117 +311,167 @@ async function buscar(q) {
 
 function selectTrack(track) {
   selectedTrack = track;
-  document.querySelectorAll('.track-card').forEach(c => c.classList.remove('selected'));
-  const card = document.querySelector('[data-id="'+track.spotify_id+'"]');
+  document.querySelectorAll('.track-card').forEach(c => { c.classList.remove('selected'); c.querySelector('.track-check').textContent=''; });
+  const card = document.querySelector(`[data-id="${track.spotify_id}"]`);
   if (card) { card.classList.add('selected'); card.querySelector('.track-check').textContent='✓'; }
-  document.getElementById('selectedCard').innerHTML = '<img src="'+track.portada_url+'" style="width:48px;height:48px;border-radius:2px"><div><div style="font-weight:700;font-size:0.9rem">'+track.cancion+'</div><div style="color:var(--gray-600);font-size:0.78rem;margin-top:2px">'+track.artista+'</div></div>';
+  document.getElementById('selectedImg').src = track.portada_url;
+  document.getElementById('selectedName').textContent = track.cancion;
+  document.getElementById('selectedArtist').textContent = track.artista;
   document.getElementById('selectedSection').classList.add('visible');
-  document.getElementById('selectedSection').scrollIntoView({behavior:'smooth',block:'nearest'});
+  document.getElementById('selectedSection').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function clearSelection() {
+  selectedTrack = null;
+  document.getElementById('selectedSection').classList.remove('visible');
+  document.querySelectorAll('.track-card').forEach(c => { c.classList.remove('selected'); c.querySelector('.track-check').textContent=''; });
 }
 
 async function enviarSolicitud() {
   if (!selectedTrack) return;
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
-  btn.querySelector('span').textContent = lang==='en' ? 'Sending...' : 'Enviando...';
+  document.getElementById('submitText').textContent = t[lang].sending;
+
   const res = await fetch('/api/solicitar', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({ evento_id:EVENTO_ID, cancion:selectedTrack.cancion, artista:selectedTrack.artista, spotify_id:selectedTrack.spotify_id, portada_url:selectedTrack.portada_url, dedicatoria:document.getElementById('dedicatoria').value })
   });
   const data = await res.json();
+
   if (res.ok) {
-    showToast(lang==='en' ? '✅ Request sent! The DJ will review it' : '✅ ¡Solicitud enviada! El DJ la revisará');
+    mySongId = data.id;
+    document.getElementById('confirmImg').src = selectedTrack.portada_url;
+    document.getElementById('confirmSong').textContent = selectedTrack.cancion;
+    document.getElementById('confirmArtist').textContent = selectedTrack.artista;
+    document.getElementById('confirmTitle').textContent = t[lang].confirmTitle;
+    document.getElementById('confirmStatus').textContent = t[lang].waitingApproval;
+    document.getElementById('confirmStatus').className = 'confirm-status';
+    document.getElementById('confirmCard').classList.add('visible');
     conectarWS(data.id);
-    resetForm();
-    // Mostrar cola automaticamente
-    setTimeout(() => { setTab('queue'); loadQueue(); }, 800);
+    document.getElementById('searchInput').value = '';
+    document.getElementById('results').innerHTML = '';
+    document.getElementById('selectedSection').classList.remove('visible');
+    document.getElementById('dedicatoria').value = '';
+    document.getElementById('charCount').textContent = '0';
+    selectedTrack = null;
+    loadQueue();
+    showToast(t[lang].toastSent);
+    window.scrollTo({top:0, behavior:'smooth'});
   } else {
-    showToast(data.detail || (lang==='en'?'Error sending':'Error al enviar'), true);
+    showToast(data.detail || 'Error', true);
   }
+
   btn.disabled = false;
-  btn.querySelector('span').textContent = lang==='en' ? 'Send Request' : 'Enviar Solicitud';
+  document.getElementById('submitText').textContent = t[lang].submitText;
+}
+
+function conectarWS(solicitudId) {
+  if (solicitudWS) solicitudWS.close();
+  const protocol = location.protocol==='https:' ? 'wss:' : 'ws:';
+  solicitudWS = new WebSocket(protocol+'//'+location.host+'/ws/usuario/'+solicitudId);
+  solicitudWS.onclose = () => { setTimeout(() => { if(mySongId===solicitudId) conectarWS(solicitudId); }, 3000); };
+  solicitudWS.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    const statusEl = document.getElementById('confirmStatus');
+    if (msg.tipo === 'rechazada') {
+      document.getElementById('confirmCard').classList.remove('visible');
+      mySongId = null;
+      showRetryModal();
+    } else if (msg.tipo === 'aprobada') {
+      if(statusEl){ statusEl.textContent=t[lang].approved; statusEl.className='confirm-status approved'; }
+      showDJNotif(t[lang].notifApproved, 'approved');
+    } else if (msg.tipo === 'next_song') {
+      if(statusEl){ statusEl.textContent=t[lang].next; statusEl.className='confirm-status next'; }
+      showDJNotif(t[lang].notifNext, 'next_song', 8000);
+    } else if (msg.tipo === 'reproducida') {
+      document.getElementById('confirmCard').classList.remove('visible');
+      mySongId = null;
+      showDJNotif(t[lang].notifPlaying, 'reproducida', 6000);
+    }
+    loadQueue();
+  };
+}
+
+function showDJNotif(msg, type, duration=5000) {
+  const n = document.getElementById('djNotif');
+  n.textContent = msg;
+  n.className = 'dj-notif show ' + type;
+  setTimeout(() => n.classList.remove('show'), duration);
+}
+
+function showToast(msg, isError=false) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast show' + (isError?' error':'');
+  setTimeout(() => toast.classList.remove('show'), 3500);
+}
+
+async function loadQueue() {
+  const res = await fetch('/api/cola/'+EVENTO_ID);
+  const items = await res.json();
+  const visible = items.filter(i => i.estado !== 'reproducida');
+  const hash = JSON.stringify(visible.map(i=>({id:i.id,estado:i.estado,votos:i.votos})));
+  if (hash === lastQueueHash) return;
+  lastQueueHash = hash;
+
+  const c = document.getElementById('queueContainer');
+  const countEl = document.getElementById('queueCount');
+
+  if (!visible.length) {
+    countEl.style.display = 'none';
+    c.innerHTML = `<div class="empty"><div class="empty-icon">🎵</div><div class="empty-text" id="emptyText">${t[lang].noRequests}</div></div>`;
+    return;
+  }
+
+  countEl.style.display = 'block';
+  countEl.textContent = visible.length;
+
+  c.innerHTML = visible.map(s => `
+    <div class="queue-item ${s.id===mySongId?'my-song':''}">
+      <img class="queue-img" src="${s.portada_url||''}" alt="" onerror="this.style.display='none'">
+      <div style="flex:1;min-width:0">
+        <div class="queue-name">${s.cancion}</div>
+        <div class="queue-artist">${s.artista}</div>
+        ${s.dedicatoria?`<div class="queue-dedic">💬 ${s.dedicatoria}</div>`:''}
+        <div class="queue-meta">
+          <span class="status-pill status-${s.estado}">${s.estado}</span>
+          ${s.id===mySongId?`<span class="my-tag">${t[lang].yourSong}</span>`:''}
+        </div>
+      </div>
+      <button class="vote-btn ${votados.includes(s.id)?'voted':''}" onclick="votar(${s.id},this)">🔥<br>${s.votos}</button>
+    </div>`).join('');
+}
+
+async function votar(id, btn) {
+  if (votados.includes(id)) { showToast(t[lang].toastAlready, true); return; }
+  const res = await fetch('/api/votar/'+id, {method:'POST'});
+  const data = await res.json();
+  if (res.ok) {
+    votados.push(id); localStorage.setItem('votados', JSON.stringify(votados));
+    btn.classList.add('voted'); btn.innerHTML='🔥<br>'+data.votos;
+    showToast(t[lang].toastVoted);
+  }
 }
 
 function showRetryModal() {
-  const modal = document.getElementById('retryModal');
-  const title = document.getElementById('retryTitle');
-  const sub = document.getElementById('retrySub');
-  if (lang === 'en') {
-    title.textContent = "Not available right now";
-    sub.textContent = "The DJ doesn't have that one tonight, but the night is young — request another!";
-    document.querySelector('.btn-retry:not(.secondary)').textContent = '🎵 Try Another Song';
-    document.querySelector('.btn-retry.secondary').textContent = 'Maybe Later';
-  } else {
-    title.textContent = "No disponible ahorita";
-    sub.textContent = "El DJ no la tiene esta noche, ¡pero la noche es larga — pide otra!";
-    document.querySelector('.btn-retry:not(.secondary)').textContent = '🎵 Pide Otra Canción';
-    document.querySelector('.btn-retry.secondary').textContent = 'Quizás después';
-  }
-  modal.classList.add('show');
+  document.getElementById('retryModal').classList.add('show');
 }
 
 function retryRequest() {
   closeRetry();
-  resetForm();
-  setTab('request');
-  setTimeout(() => {
-    document.getElementById('searchInput').focus();
-    window.scrollTo({top: 0, behavior: 'smooth'});
-  }, 300);
-}
-
-function resetForm() {
   document.getElementById('searchInput').value = '';
   document.getElementById('results').innerHTML = '';
-  document.getElementById('selectedSection').classList.remove('visible');
-  document.getElementById('dedicatoria').value = '';
-  document.getElementById('charCount').textContent = '0';
-  document.getElementById('selectedCard').innerHTML = '';
-  // Limpiar cualquier mensaje de confirmacion post-envio
-  const confirmMsg = document.getElementById('confirmMsg');
-  if (confirmMsg) confirmMsg.style.display = 'none';
-  selectedTrack = null;
-  // No cerrar WS aqui - esperar notificacion del DJ
+  document.getElementById('searchInput').focus();
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 
 function closeRetry() {
   document.getElementById('retryModal').classList.remove('show');
 }
 
-let lastQueueHash = '';
-async function loadQueue() {
-  const res = await fetch('/api/cola/'+EVENTO_ID);
-  const items = await res.json();
-  const hash = JSON.stringify(items.map(i=>({id:i.id,estado:i.estado,votos:i.votos})));
-  const c = document.getElementById('queueContainer');
-  if(hash === lastQueueHash && c.children.length > 0) return;
-  lastQueueHash = hash;
-  if (!items.length) { c.innerHTML='<div class="empty"><div class="empty-icon">🎵</div><div class="empty-text">'+(lang==='en'?'No requests yet':'Sin solicitudes aún')+'</div></div>'; return; }
-  c.innerHTML = items.map(s => `
-    <div class="queue-item">
-      <img class="queue-img" src="${s.portada_url||'https://via.placeholder.com/48'}" alt="">
-      <div style="flex:1;min-width:0">
-        <div class="queue-name">${s.cancion}</div>
-        <div class="queue-artist">${s.artista}</div>
-        ${s.dedicatoria?'<div class="queue-dedic">💬 "'+s.dedicatoria+'"</div>':''}
-        <span class="status-pill status-${s.estado}">${s.estado}</span>
-      </div>
-      <div>
-        <button class="vote-btn ${votados.includes(s.id)?'voted':''}" onclick="votar(${s.id},this)">🔥<br>${s.votos}</button>
-      </div>
-    </div>`).join('');
-}
-
-async function votar(id, btn) {
-  if (votados.includes(id)) { showToast(lang==='en'?'Already voted!':'¡Ya votaste!', true); return; }
-  const res = await fetch('/api/votar/'+id, {method:'POST'});
-  const data = await res.json();
-  if (res.ok) {
-    votados.push(id); localStorage.setItem('votados', JSON.stringify(votados));
-    btn.classList.add('voted'); btn.innerHTML='🔥<br>'+data.votos;
-    showToast(lang==='en'?'🔥 Vote registered!':'🔥 ¡Voto registrado!');
-  }
-}
+loadQueue();
+setInterval(loadQueue, 10000);
 </script>
 </body>
 </html>
