@@ -15,11 +15,11 @@
   body { background:var(--black); color:var(--white); font-family:'DM Sans',sans-serif; height:100vh; overflow:hidden; }
   body::before { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px); pointer-events:none; z-index:1000; }
 
-  .display { display:grid; grid-template-rows:auto 1fr auto auto; height:100vh; padding:28px 48px 20px; gap:20px; }
+  .display { display:grid; grid-template-rows:auto auto 1fr auto; height:100vh; padding:24px 48px 20px; gap:16px; }
 
   /* HEADER */
-  .header { display:flex; align-items:center; justify-content:space-between; gap:24px; }
-  .header-left { display:flex; flex-direction:column; gap:6px; }
+  .header { display:flex; align-items:center; justify-content:space-between; }
+  .header-left { display:flex; flex-direction:column; gap:4px; }
   .logo { display:flex; align-items:center; gap:14px; }
   .logo-text { font-family:'Bebas Neue',sans-serif; font-size:2rem; letter-spacing:3px; color:var(--white); line-height:1; }
   .logo-text span { color:var(--orange); }
@@ -29,59 +29,58 @@
   .event-name { font-family:'Bebas Neue',sans-serif; font-size:2.4rem; letter-spacing:3px; color:var(--white); line-height:1; padding-left:38px; }
   .event-sub { font-size:0.65rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-text); padding-left:38px; }
 
-  /* QR - centrado en header */
-  .header-center { flex:1; display:flex; justify-content:center; align-items:center; }
-  .qr-wrap { background:var(--white); border-radius:8px; padding:16px 20px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px; }
-  .qr-wrap img { width:180px; height:180px; display:block; }
-  .qr-cta { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:2px; color:var(--black); }
-  .qr-url { font-size:0.6rem; letter-spacing:2px; text-transform:uppercase; color:#888; }
-
-  /* header right - DJ REQUEST SYSTEM */
-  .header-right { text-align:right; }
-  .dj-system { font-size:0.65rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-text); }
-
-  /* QUEUE */
-  .queue-section { overflow:hidden; display:flex; flex-direction:column; gap:12px; }
-  .section-label { font-size:0.6rem; letter-spacing:4px; text-transform:uppercase; color:var(--gray-text); display:flex; align-items:center; gap:12px; }
-  .section-label::after { content:''; flex:1; height:1px; background:var(--gray-mid); }
-  .queue-list { display:flex; flex-direction:column; gap:8px; overflow:hidden; flex:1; }
-
-  .song-card { display:flex; align-items:center; gap:16px; background:var(--gray); border:1px solid var(--gray-mid); border-radius:4px; padding:12px 20px; position:relative; overflow:hidden; }
-  .song-card::before { content:''; position:absolute; left:0;top:0;bottom:0; width:3px; background:var(--gray-mid); }
-  .song-card.aprobada::before { background:var(--orange); }
-  .song-card.top { background:#1a1200; border-color:#3a2800; }
-  .song-card.top::before { background:var(--orange); }
-  .song-rank { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--gray-text); min-width:40px; text-align:center; line-height:1; }
-  .song-card.top .song-rank { color:var(--orange); }
-  .song-cover { width:52px; height:52px; border-radius:3px; object-fit:cover; flex-shrink:0; background:var(--gray-mid); }
-  .song-info { flex:1; min-width:0; }
-  .song-title { font-weight:700; font-size:1.05rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .song-artist { font-size:0.8rem; color:var(--gray-text); margin-top:2px; }
-  .song-dedic { font-size:0.72rem; color:var(--orange); margin-top:2px; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .song-votes { display:flex; flex-direction:column; align-items:center; gap:2px; min-width:48px; }
-  .votes-num { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--white); line-height:1; }
-  .song-card.top .votes-num { color:var(--orange); }
-  .votes-label { font-size:0.55rem; letter-spacing:2px; text-transform:uppercase; color:var(--gray-text); }
-  .status-badge { font-size:0.55rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:3px 8px; border-radius:2px; background:var(--orange-dim); color:var(--orange); border:1px solid var(--orange); }
-
   /* DJ MESSAGE - full width */
-  .message-bar { background:var(--gray); border:1px solid var(--gray-mid); border-radius:4px; padding:14px 24px; display:flex; align-items:center; gap:20px; min-height:60px; }
-  .message-label { font-size:0.55rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-text); white-space:nowrap; flex-shrink:0; }
+  .message-bar { background:var(--gray); border:1px solid var(--gray-mid); border-left:3px solid var(--orange); border-radius:4px; padding:14px 24px; display:flex; align-items:center; gap:16px; min-height:56px; }
+  .message-label { font-size:0.55rem; letter-spacing:3px; text-transform:uppercase; color:var(--orange); white-space:nowrap; flex-shrink:0; }
   .message-text { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; letter-spacing:2px; color:var(--white); line-height:1.2; flex:1; word-break:break-word; transition:color .3s; }
   .message-text.orange { color:var(--orange); }
   .message-text.empty { color:var(--gray-mid); font-size:1rem; font-family:'DM Sans',sans-serif; font-weight:400; letter-spacing:1px; }
 
-  /* STATS */
-  .stats-bar { display:flex; align-items:center; gap:32px; padding-top:12px; border-top:1px solid var(--gray-mid); flex-wrap:nowrap; }
-  .stat { text-align:center; }
-  .stat-num { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--orange); line-height:1; }
-  .stat-label { font-size:0.55rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-text); margin-top:2px; }
-  .stat-divider { width:1px; height:28px; background:var(--gray-mid); }
-  .powered { margin-left:auto; font-size:0.6rem; letter-spacing:2px; text-transform:uppercase; color:var(--gray-mid); }
+  /* MAIN: queue + QR */
+  .main { display:grid; grid-template-columns:1fr 320px; gap:24px; overflow:hidden; }
+
+  /* SONG QUEUE */
+  .queue-section { overflow:hidden; display:flex; flex-direction:column; gap:10px; }
+  .section-label { font-size:0.6rem; letter-spacing:4px; text-transform:uppercase; color:var(--gray-text); display:flex; align-items:center; gap:12px; }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--gray-mid); }
+  .queue-list { display:flex; flex-direction:column; gap:8px; overflow:hidden; }
+
+  .song-card { display:flex; align-items:center; gap:14px; background:var(--gray); border:1px solid var(--gray-mid); border-radius:4px; padding:10px 16px; position:relative; overflow:hidden; }
+  .song-card::before { content:''; position:absolute; left:0;top:0;bottom:0; width:3px; background:var(--gray-mid); }
+  .song-card.aprobada::before { background:var(--orange); }
+  .song-card.top { background:#1a1200; border-color:#3a2800; }
+  .song-card.top::before { background:var(--orange); }
+  .song-rank { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; color:var(--gray-text); min-width:36px; text-align:center; line-height:1; }
+  .song-card.top .song-rank { color:var(--orange); }
+  .song-cover { width:48px; height:48px; border-radius:3px; object-fit:cover; flex-shrink:0; background:var(--gray-mid); }
+  .song-info { flex:1; min-width:0; }
+  .song-title { font-weight:700; font-size:0.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .song-artist { font-size:0.75rem; color:var(--gray-text); margin-top:2px; }
+  .song-dedic { font-size:0.68rem; color:var(--orange); margin-top:2px; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .song-votes { display:flex; flex-direction:column; align-items:center; gap:1px; min-width:44px; }
+  .votes-num { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; color:var(--white); line-height:1; }
+  .song-card.top .votes-num { color:var(--orange); }
+  .votes-label { font-size:0.5rem; letter-spacing:2px; text-transform:uppercase; color:var(--gray-text); }
+  .status-badge { font-size:0.5rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:3px 8px; border-radius:2px; background:var(--orange-dim); color:var(--orange); border:1px solid var(--orange); }
 
   .empty-queue { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; gap:12px; padding:32px; }
-  .empty-queue-icon { font-family:'Bebas Neue',sans-serif; font-size:4rem; letter-spacing:4px; color:var(--gray-mid); }
+  .empty-queue-icon { font-family:'Bebas Neue',sans-serif; font-size:3rem; letter-spacing:4px; color:var(--gray-mid); }
   .empty-queue-text { font-size:0.7rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-mid); }
+
+  /* QR + REDES panel derecho */
+  .right-panel { display:flex; flex-direction:column; gap:12px; }
+  .qr-box { background:var(--white); border-radius:8px; padding:16px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .qr-box img { width:220px; height:220px; display:block; }
+  .qr-cta { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:2px; color:var(--black); }
+  .qr-url { font-size:0.6rem; letter-spacing:2px; text-transform:uppercase; color:#888; }
+
+  /* SOCIAL MEDIA */
+  .social-bar { background:var(--gray); border:1px solid var(--gray-mid); border-radius:4px; padding:12px 16px; display:flex; flex-direction:column; gap:8px; flex:1; }
+  .social-title { font-size:0.55rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-text); margin-bottom:4px; }
+  .social-link { display:flex; align-items:center; gap:10px; }
+  .social-icon { font-size:1.2rem; width:28px; text-align:center; flex-shrink:0; }
+  .social-handle { font-size:0.85rem; font-weight:600; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .social-handle.empty { color:var(--gray-mid); font-size:0.7rem; font-weight:400; }
 </style>
 </head>
 <body>
@@ -104,53 +103,70 @@
       <div class="event-name" id="eventName">DJ Request</div>
       <div class="event-sub" id="eventSub">DJ Request System</div>
     </div>
-
-    <!-- QR GRANDE CENTRADO -->
-    <div class="header-center">
-      <div class="qr-wrap">
-        <img src="/qr" alt="QR Code" id="qrImg">
-        <div class="qr-cta">Scan to Request</div>
-        <div class="qr-url">www.asong.live</div>
-      </div>
-    </div>
-
-
   </div>
 
-  <!-- SONG QUEUE - full width -->
-  <div class="queue-section">
-    <div class="section-label">Song Queue</div>
-    <div class="queue-list" id="queueList">
-      <div class="empty-queue">
-        <div class="empty-queue-icon">♪</div>
-        <div class="empty-queue-text">Waiting for requests</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- DJ MESSAGE - full width abajo -->
+  <!-- DJ MESSAGE - full width -->
   <div class="message-bar">
     <div class="message-label">📢 DJ</div>
     <div class="message-text empty" id="messageDisplay">Waiting for message...</div>
   </div>
 
-  <!-- STATS BAR -->
-  <div class="stats-bar">
-    <div class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Requests</div></div>
-    <div class="stat-divider"></div>
-    <div class="stat"><div class="stat-num" id="statPending">0</div><div class="stat-label">Pending</div></div>
-    <div class="stat-divider"></div>
-    <div class="stat"><div class="stat-num" id="statApproved">0</div><div class="stat-label">Approved</div></div>
-    <div class="stat-divider"></div>
-    <div class="stat"><div class="stat-num" id="statVotes">0</div><div class="stat-label">Votes</div></div>
-    <div class="powered">asong.live — live event technology</div>
-    <div style="margin-left:auto">
-      <div style="background:var(--white);border-radius:6px;padding:10px 12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px">
-        <img src="/qr" alt="QR" style="width:80px;height:80px;display:block">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:0.8rem;letter-spacing:2px;color:var(--black)">Scan to Request</div>
-        <div style="font-size:0.5rem;letter-spacing:1px;text-transform:uppercase;color:#888">www.asong.live</div>
+  <!-- MAIN: queue izq + QR/redes der -->
+  <div class="main">
+    <div class="queue-section">
+      <div class="section-label">Song Queue</div>
+      <div class="queue-list" id="queueList">
+        <div class="empty-queue">
+          <div class="empty-queue-icon">♪</div>
+          <div class="empty-queue-text">Waiting for requests</div>
+        </div>
       </div>
     </div>
+
+    <div class="right-panel">
+      <!-- QR GRANDE -->
+      <div class="qr-box">
+        <img src="/qr" alt="QR Code">
+        <div class="qr-cta">Scan to Request</div>
+        <div class="qr-url">www.asong.live</div>
+      </div>
+      <!-- REDES SOCIALES -->
+      <div class="social-bar" id="socialBar" style="display:none">
+        <div class="social-title">Follow the DJ</div>
+        <div class="social-link" id="socialInstagram" style="display:none">
+          <div class="social-icon">📸</div>
+          <div class="social-handle" id="handleInstagram"></div>
+        </div>
+        <div class="social-link" id="socialTiktok" style="display:none">
+          <div class="social-icon">🎵</div>
+          <div class="social-handle" id="handleTiktok"></div>
+        </div>
+        <div class="social-link" id="socialFacebook" style="display:none">
+          <div class="social-icon">👤</div>
+          <div class="social-handle" id="handleFacebook"></div>
+        </div>
+        <div class="social-link" id="socialSpotify" style="display:none">
+          <div class="social-icon">🎧</div>
+          <div class="social-handle" id="handleSpotify"></div>
+        </div>
+        <div class="social-link" id="socialWebsite" style="display:none">
+          <div class="social-icon">🌐</div>
+          <div class="social-handle" id="handleWebsite"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS BAR -->
+  <div style="display:flex;align-items:center;gap:32px;padding-top:12px;border-top:1px solid var(--gray-mid)">
+    <div style="text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--orange);line-height:1" id="statTotal">0</div><div style="font-size:0.55rem;letter-spacing:3px;text-transform:uppercase;color:var(--gray-text);margin-top:2px">Requests</div></div>
+    <div style="width:1px;height:28px;background:var(--gray-mid)"></div>
+    <div style="text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--orange);line-height:1" id="statPending">0</div><div style="font-size:0.55rem;letter-spacing:3px;text-transform:uppercase;color:var(--gray-text);margin-top:2px">Pending</div></div>
+    <div style="width:1px;height:28px;background:var(--gray-mid)"></div>
+    <div style="text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--orange);line-height:1" id="statApproved">0</div><div style="font-size:0.55rem;letter-spacing:3px;text-transform:uppercase;color:var(--gray-text);margin-top:2px">Approved</div></div>
+    <div style="width:1px;height:28px;background:var(--gray-mid)"></div>
+    <div style="text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--orange);line-height:1" id="statVotes">0</div><div style="font-size:0.55rem;letter-spacing:3px;text-transform:uppercase;color:var(--gray-text);margin-top:2px">Votes</div></div>
+    <div style="margin-left:auto;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray-mid)">asong.live</div>
   </div>
 
 </div>
@@ -161,41 +177,47 @@ let lastQueueHash = '';
 
 const protocol = location.protocol==='https:' ? 'wss:' : 'ws:';
 const ws = new WebSocket(protocol+'//'+location.host+'/ws/display');
-
 ws.onmessage = (e) => {
   const msg = JSON.parse(e.data);
-  if (msg.tipo === 'dj_message') {
-    updateMessage(msg.texto, msg.color);
-  } else if (['nueva_solicitud','estado_actualizado','voto'].includes(msg.tipo)) {
-    loadQueue();
-  }
+  if (msg.tipo === 'dj_message') updateMessage(msg.texto, msg.color);
+  else if (['nueva_solicitud','estado_actualizado','voto'].includes(msg.tipo)) loadQueue();
 };
-
 ws.onclose = () => setTimeout(() => location.reload(), 3000);
 
 function updateMessage(texto, color) {
   const el = document.getElementById('messageDisplay');
-  if (!texto) {
-    el.textContent = 'Waiting for message...';
-    el.className = 'message-text empty';
-  } else {
-    el.textContent = texto;
-    el.className = 'message-text' + (color === 'orange' ? ' orange' : '');
+  if (!texto) { el.textContent = 'Waiting for message...'; el.className = 'message-text empty'; }
+  else { el.textContent = texto; el.className = 'message-text' + (color==='orange'?' orange':''); }
+}
+
+function showSocial(id, handle, handleElId) {
+  if (handle) {
+    document.getElementById(id).style.display = 'flex';
+    document.getElementById(handleElId).textContent = handle;
+    document.getElementById('socialBar').style.display = 'flex';
   }
+}
+
+async function loadConfig() {
+  const res = await fetch('/api/config/publica');
+  const cfg = await res.json();
+  if (cfg.event_name) document.getElementById('eventName').textContent = cfg.event_name;
+  if (cfg.subtitle) document.getElementById('eventSub').textContent = cfg.subtitle;
+  showSocial('socialInstagram', cfg.instagram, 'handleInstagram');
+  showSocial('socialTiktok', cfg.tiktok, 'handleTiktok');
+  showSocial('socialFacebook', cfg.facebook, 'handleFacebook');
+  showSocial('socialSpotify', cfg.spotify_dj, 'handleSpotify');
+  showSocial('socialWebsite', cfg.website, 'handleWebsite');
 }
 
 async function loadQueue() {
   const res = await fetch('/api/cola/'+EVENTO_ID);
   const items = await res.json();
-
-  // Filtrar reproducidas y rechazadas
   const visible = items.filter(i => i.estado !== 'reproducida' && i.estado !== 'rechazada');
-
   const hash = JSON.stringify(visible.map(i=>({id:i.id,estado:i.estado,votos:i.votos})));
   if (hash === lastQueueHash) return;
   lastQueueHash = hash;
 
-  // Stats con todos los items
   document.getElementById('statTotal').textContent = items.length;
   document.getElementById('statPending').textContent = items.filter(i=>i.estado==='pendiente').length;
   document.getElementById('statApproved').textContent = items.filter(i=>i.estado==='aprobada').length;
@@ -207,7 +229,6 @@ async function loadQueue() {
     return;
   }
 
-  // Ordenar: primero aprobadas, luego por votos, luego por llegada
   const sorted = [...visible].sort((a,b) => {
     if (a.estado==='aprobada' && b.estado!=='aprobada') return -1;
     if (b.estado==='aprobada' && a.estado!=='aprobada') return 1;
@@ -232,12 +253,7 @@ async function loadQueue() {
     </div>`).join('');
 }
 
-// Config del evento
-fetch('/api/config/publica').then(r=>r.json()).then(cfg=>{
-  if(cfg.event_name) document.getElementById('eventName').textContent = cfg.event_name;
-  if(cfg.subtitle) document.getElementById('eventSub').textContent = cfg.subtitle;
-}).catch(()=>{});
-
+loadConfig();
 loadQueue();
 setInterval(loadQueue, 10000);
 </script>
