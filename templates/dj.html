@@ -310,7 +310,20 @@
 <div class="notif" id="notif"></div>
 
 <script>
-let PASSWORD=localStorage.getItem('djpass')||'', solicitudes=[], filtro='todas', ws;
+let PASSWORD=localStorage.getItem("djpass")||"", solicitudes=[], filtro="todas", ws;
+
+// Auto-login si hay password guardado
+window.addEventListener("load", async () => {
+  if (PASSWORD) {
+    const res = await fetch(`/api/dj/solicitudes?password=${encodeURIComponent(PASSWORD)}`);
+    if (res.ok) {
+      solicitudes = await res.json();
+      document.getElementById("loginScreen").style.display = "none";
+      document.getElementById("djPanel").style.display = "block";
+      loadConfig(); renderQueue(); conectarWS();
+    } else { localStorage.removeItem("djpass"); PASSWORD = ""; }
+  }
+});
 let config = JSON.parse(localStorage.getItem('djConfig')||'{}');
 
 async function login() {
