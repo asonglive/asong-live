@@ -157,16 +157,9 @@
     </div>
   </div>
 
-  <!-- STATS BAR -->
-  <div style="display:flex;align-items:center;gap:32px;padding-top:12px;border-top:1px solid var(--gray-mid)">
-    <div style="text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--orange);line-height:1" id="statTotal">0</div><div style="font-size:0.55rem;letter-spacing:3px;text-transform:uppercase;color:var(--gray-text);margin-top:2px">Requests</div></div>
-    <div style="width:1px;height:28px;background:var(--gray-mid)"></div>
-    <div style="text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--orange);line-height:1" id="statPending">0</div><div style="font-size:0.55rem;letter-spacing:3px;text-transform:uppercase;color:var(--gray-text);margin-top:2px">Pending</div></div>
-    <div style="width:1px;height:28px;background:var(--gray-mid)"></div>
-    <div style="text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--orange);line-height:1" id="statApproved">0</div><div style="font-size:0.55rem;letter-spacing:3px;text-transform:uppercase;color:var(--gray-text);margin-top:2px">Approved</div></div>
-    <div style="width:1px;height:28px;background:var(--gray-mid)"></div>
-    <div style="text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--orange);line-height:1" id="statVotes">0</div><div style="font-size:0.55rem;letter-spacing:3px;text-transform:uppercase;color:var(--gray-text);margin-top:2px">Votes</div></div>
-    <div style="margin-left:auto;font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray-mid)">asong.live</div>
+  <!-- asong.live footer -->
+  <div style="text-align:right;padding-top:8px;border-top:1px solid var(--gray-mid)">
+    <span style="font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray-mid)">asong.live</span>
   </div>
 
 </div>
@@ -218,10 +211,10 @@ async function loadQueue() {
   if (hash === lastQueueHash) return;
   lastQueueHash = hash;
 
-  document.getElementById('statTotal').textContent = items.length;
-  document.getElementById('statPending').textContent = items.filter(i=>i.estado==='pendiente').length;
-  document.getElementById('statApproved').textContent = items.filter(i=>i.estado==='aprobada').length;
-  document.getElementById('statVotes').textContent = items.reduce((a,b)=>a+b.votos,0);
+  const _st=document.getElementById('statTotal'); if(_st) _st.textContent = items.length;
+  const _sp=document.getElementById('statPending'); if(_sp) _sp.textContent = items.filter(i=>i.estado==='pendiente').length;
+  const _sa=document.getElementById('statApproved'); if(_sa) _sa.textContent = items.filter(i=>i.estado==='aprobada').length;
+  const _sv=document.getElementById('statVotes'); if(_sv) _sv.textContent = items.reduce((a,b)=>a+b.votos,0);
 
   const list = document.getElementById('queueList');
   if (!visible.length) {
