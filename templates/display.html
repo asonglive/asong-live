@@ -17,11 +17,11 @@
 
   .display { display:grid; grid-template-rows:auto 1fr auto; height:100vh; padding:32px 48px; gap:24px; }
 
-  .header { display:flex; align-items:center; justify-content:space-between; }
+  .header { display:flex; align-items:flex-end; justify-content:space-between; }
   .logo { display:flex; align-items:center; gap:14px; }
   .logo-text { font-family:'Bebas Neue',sans-serif; font-size:2rem; letter-spacing:3px; color:var(--white); line-height:1; }
   .logo-text span { color:var(--orange); }
-  .event-info { text-align:right; }
+  .event-info { text-align:right; display:flex; flex-direction:column; align-items:flex-end; justify-content:flex-end; }
   .event-name { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; letter-spacing:3px; color:var(--white); line-height:1; }
   .event-sub { font-size:0.7rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-text); margin-top:4px; }
   .live-badge { display:flex; align-items:center; gap:8px; background:var(--orange-dim); border:1px solid var(--orange); border-radius:2px; padding:6px 14px; font-size:0.65rem; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--orange); }
@@ -80,20 +80,23 @@
 <body>
 <div class="display">
   <div class="header">
-    <div class="logo">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 60" width="24" height="36">
-        <rect x="0" y="15" width="5" height="30" fill="#FF6B2B" rx="2" opacity="0.4"/>
-        <rect x="9" y="8" width="5" height="44" fill="#FF6B2B" rx="2" opacity="0.7"/>
-        <rect x="18" y="0" width="5" height="60" fill="#FF6B2B" rx="2"/>
-        <rect x="27" y="10" width="5" height="40" fill="#FF6B2B" rx="2" opacity="0.7"/>
-        <rect x="36" y="20" width="5" height="20" fill="#FF6B2B" rx="2" opacity="0.4"/>
-      </svg>
-      <div class="logo-text">asong<span>.live</span></div>
-      <div class="live-badge"><div class="live-dot"></div> Live</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 60" width="24" height="36">
+          <rect x="0" y="15" width="5" height="30" fill="#FF6B2B" rx="2" opacity="0.4"/>
+          <rect x="9" y="8" width="5" height="44" fill="#FF6B2B" rx="2" opacity="0.7"/>
+          <rect x="18" y="0" width="5" height="60" fill="#FF6B2B" rx="2"/>
+          <rect x="27" y="10" width="5" height="40" fill="#FF6B2B" rx="2" opacity="0.7"/>
+          <rect x="36" y="20" width="5" height="20" fill="#FF6B2B" rx="2" opacity="0.4"/>
+        </svg>
+        <div class="logo-text">asong<span>.live</span></div>
+        <div class="live-badge"><div class="live-dot"></div> Live</div>
+      </div>
+      <div class="event-name" id="eventName">DJ Request</div>
+      <div style="font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray-text)">asong.live</div>
     </div>
     <div class="event-info">
-      <div class="event-name" id="eventName">DJ Request</div>
-      <div class="event-sub" id="eventSub">Request your song</div>
+      <div class="event-sub" id="eventSub" style="font-size:0.7rem;letter-spacing:3px;text-transform:uppercase;color:var(--gray-text)">DJ REQUEST SYSTEM</div>
     </div>
   </div>
 
@@ -109,7 +112,7 @@
     </div>
     <div class="right-panel">
       <div class="qr-box">
-        <img src="/qr" alt="QR">
+  <img src="/qr" alt="QR" id="qrImg">
         <div class="qr-cta">Scan to Request</div>
         <div class="qr-sub">No app needed</div>
       </div>
@@ -136,6 +139,7 @@
 const EVENTO_ID = {{ evento.id if evento else 1 }};
 let queueData = [];
 
+document.getElementById("qrImg").src = "/qr?t=" + Date.now();
 fetch('/api/config/publica').then(r=>r.json()).then(cfg=>{
   if(cfg.event_name) document.getElementById('eventName').textContent = cfg.event_name;
   if(cfg.subtitle) document.getElementById('eventSub').textContent = cfg.subtitle;
