@@ -26,8 +26,8 @@
   .live-badge { display:flex; align-items:center; gap:8px; background:var(--orange-dim); border:1px solid var(--orange); border-radius:2px; padding:5px 12px; font-size:0.6rem; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--orange); }
   .live-dot { width:6px; height:6px; background:var(--orange); border-radius:50%; animation:pulse 1.5s infinite; }
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
-  .event-name { font-family:'Bebas Neue',sans-serif; font-size:2.4rem; letter-spacing:3px; color:var(--white); line-height:1; }
-  .event-sub { font-size:0.65rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-text); }
+  .event-name { font-family:'Bebas Neue',sans-serif; font-size:2.4rem; letter-spacing:3px; color:var(--white); line-height:1; padding-left:38px; }
+  .event-sub { font-size:0.65rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-text); padding-left:38px; }
 
   /* QR - centrado en header */
   .header-center { flex:1; display:flex; justify-content:center; align-items:center; }
@@ -72,7 +72,7 @@
   .message-text.empty { color:var(--gray-mid); font-size:1rem; font-family:'DM Sans',sans-serif; font-weight:400; letter-spacing:1px; }
 
   /* STATS */
-  .stats-bar { display:flex; align-items:center; gap:32px; padding-top:12px; border-top:1px solid var(--gray-mid); }
+  .stats-bar { display:flex; align-items:center; gap:32px; padding-top:12px; border-top:1px solid var(--gray-mid); flex-wrap:nowrap; }
   .stat { text-align:center; }
   .stat-num { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--orange); line-height:1; }
   .stat-label { font-size:0.55rem; letter-spacing:3px; text-transform:uppercase; color:var(--gray-text); margin-top:2px; }
@@ -114,9 +114,7 @@
       </div>
     </div>
 
-    <div class="header-right">
-      <div class="dj-system">DJ REQUEST SYSTEM</div>
-    </div>
+
   </div>
 
   <!-- SONG QUEUE - full width -->
@@ -146,6 +144,13 @@
     <div class="stat-divider"></div>
     <div class="stat"><div class="stat-num" id="statVotes">0</div><div class="stat-label">Votes</div></div>
     <div class="powered">asong.live — live event technology</div>
+    <div style="margin-left:auto">
+      <div style="background:var(--white);border-radius:6px;padding:10px 12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <img src="/qr" alt="QR" style="width:80px;height:80px;display:block">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:0.8rem;letter-spacing:2px;color:var(--black)">Scan to Request</div>
+        <div style="font-size:0.5rem;letter-spacing:1px;text-transform:uppercase;color:#888">www.asong.live</div>
+      </div>
+    </div>
   </div>
 
 </div>
