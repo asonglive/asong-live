@@ -99,6 +99,14 @@ manager = ConnectionManager()
 @app.on_event("startup")
 async def startup():
     await init_db()
+    # Migration: agregar columnas de redes sociales si no existen
+    async with aiosqlite.connect("dj_request.db") as db:
+        for col in ['instagram','tiktok','facebook','spotify_dj','website']:
+            try:
+                await db.execute(f"ALTER TABLE configuracion ADD COLUMN {col} TEXT DEFAULT ''")
+                await db.commit()
+            except:
+                pass
     async with aiosqlite.connect("dj_request.db") as db:
         cursor = await db.execute("SELECT COUNT(*) FROM eventos")
         count = (await cursor.fetchone())[0]
@@ -283,8 +291,7 @@ async def get_config(password: str, evento_id: int = 1):
         row = await cursor.fetchone()
     if row:
         return dict(row)
-    return {"evento_id": evento_id, "event_name": "Mi Evento", "subtitle": "asong.live — DJ Request System",
-            "logo_url": "", "cashapp": "", "venmo": "", "applepay": "", "love_text": "Show Your Love 💛"}
+    return {"evento_id": evento_id, "event_name": "Mi Evento", "subtitle": "DJ Request System", "logo_url": "", "cashapp": "", "venmo": "", "applepay": "", "love_text": "Show Your Love 💛", "instagram": "", "tiktok": "", "facebook": "", "spotify_dj": "", "website": ""}
 
 @app.post("/api/dj/config")
 async def save_config(data: dict):
@@ -293,15 +300,19 @@ async def save_config(data: dict):
     evento_id = data.get("evento_id", 1)
     async with aiosqlite.connect("dj_request.db") as db:
         await db.execute("""
-            INSERT INTO configuracion (evento_id, event_name, subtitle, logo_url, cashapp, venmo, applepay, love_text)
-            VALUES (?,?,?,?,?,?,?,?)
+            INSERT INTO configuracion (evento_id, event_name, subtitle, logo_url, cashapp, venmo, applepay, love_text, instagram, tiktok, facebook, spotify_dj, website)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
             ON CONFLICT(evento_id) DO UPDATE SET
                 event_name=excluded.event_name, subtitle=excluded.subtitle,
                 logo_url=excluded.logo_url, cashapp=excluded.cashapp,
-                venmo=excluded.venmo, applepay=excluded.applepay, love_text=excluded.love_text
+                venmo=excluded.venmo, applepay=excluded.applepay, love_text=excluded.love_text,
+                instagram=excluded.instagram, tiktok=excluded.tiktok,
+                facebook=excluded.facebook, spotify_dj=excluded.spotify_dj, website=excluded.website
         """, (evento_id, data.get("event_name","Mi Evento"), data.get("subtitle",""),
               data.get("logo_url",""), data.get("cashapp",""), data.get("venmo",""),
-              data.get("applepay",""), data.get("love_text","Show Your Love 💛")))
+              data.get("applepay",""), data.get("love_text","Show Your Love 💛"),
+              data.get("instagram",""), data.get("tiktok",""),
+              data.get("facebook",""), data.get("spotify_dj",""), data.get("website","")))
         await db.commit()
     await manager.broadcast_to_dj({"tipo": "config_actualizada"})
     return {"ok": True}

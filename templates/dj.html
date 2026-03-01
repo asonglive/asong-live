@@ -376,6 +376,11 @@ async function loadConfig() {
       document.getElementById('cfgEventName').value = cfg.event_name || '';
       document.getElementById('cfgSubtitle').value = cfg.subtitle || '';
       document.getElementById('cfgLogo').value = cfg.logo_url || '';
+      if(document.getElementById('cfgInstagram')) document.getElementById('cfgInstagram').value = cfg.instagram || '';
+      if(document.getElementById('cfgTiktok')) document.getElementById('cfgTiktok').value = cfg.tiktok || '';
+      if(document.getElementById('cfgFacebook')) document.getElementById('cfgFacebook').value = cfg.facebook || '';
+      if(document.getElementById('cfgSpotifyDj')) document.getElementById('cfgSpotifyDj').value = cfg.spotify_dj || '';
+      if(document.getElementById('cfgWebsite')) document.getElementById('cfgWebsite').value = cfg.website || '';
       document.getElementById('cfgCashapp').value = cfg.cashapp || '';
       document.getElementById('cfgVenmo').value = cfg.venmo || '';
       document.getElementById('cfgApplepay').value = cfg.applepay || '';

@@ -49,6 +49,11 @@ async def init_db():
                 venmo TEXT DEFAULT '',
                 applepay TEXT DEFAULT '',
                 love_text TEXT DEFAULT 'Show Your Love',
+                instagram TEXT DEFAULT '',
+                tiktok TEXT DEFAULT '',
+                facebook TEXT DEFAULT '',
+                spotify_dj TEXT DEFAULT '',
+                website TEXT DEFAULT '',
                 FOREIGN KEY (evento_id) REFERENCES eventos(id)
             )
         """)
