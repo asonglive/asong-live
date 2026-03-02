@@ -15,7 +15,34 @@
     --gold: #b8960c; --gold-light: #fdf8e6;
     --blue: #1a3a6b; --blue-light: #e8eef5;
   }
-  body { background: var(--gray-100); color: var(--black); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+  body { background: var(--gray-100); color: var(--black); font-family: 'DM Sans', sans-serif; min-height: 100vh; transition: background .3s, color .3s; }
+  body.dark { background: #111; color: #f0f0eb; }
+  body.dark .dj-header { background: #0a0a0a; border-bottom: 1px solid #222; }
+  body.dark .stats-bar { background: #1a1a1a; border-bottom: 1px solid #222; }
+  body.dark .stat-item { border-right-color: #222; }
+  body.dark .song-card { background: #1a1a1a; border-color: #2a2a2a; color: #f0f0eb; }
+  body.dark .song-card:hover { border-color: #444; }
+  body.dark .song-name { color: #f0f0eb; }
+  body.dark .song-artist { color: #888; }
+  body.dark .song-dedicatoria { background: #222; border-left-color: #333; color: #aaa; }
+  body.dark .queue-panel { background: #111; }
+  body.dark .queue-header { background: #111; border-bottom-color: #222; }
+  body.dark .queue-title { color: #f0f0eb; }
+  body.dark .pill { border-color: #333; color: #888; }
+  body.dark .pill.active { background: #f0f0eb; color: #0a0a0a; border-color: #f0f0eb; }
+  body.dark .controls-panel { background: #1a1a1a; border-left-color: #222; }
+  body.dark .ctrl-title { color: #f0f0eb; border-bottom-color: #2a2a2a; }
+  body.dark .setup-field label { color: #888; }
+  body.dark .setup-field input, body.dark .setup-field textarea { background: #222; border-color: #333; color: #f0f0eb; }
+  body.dark .act-btn { background: #1a1a1a; }
+  body.dark .act-btn.act-approve { border-color: #4caf50; color: #4caf50; }
+  body.dark .act-btn.act-next { border-color: #FF6B2B; color: #FF6B2B; }
+  body.dark .act-btn.act-play { border-color: #888; color: #888; }
+  body.dark .act-btn.act-reject { border-color: #e53935; color: #e53935; }
+  body.dark [style*="background:var(--white)"] { background: #1a1a1a !important; }
+  body.dark [style*="border-bottom:1.5px solid var(--gray-200)"] { border-bottom-color: #222 !important; }
+  .dark-toggle { background: none; border: 1.5px solid #444; border-radius: 20px; padding: 5px 12px; cursor: pointer; font-size: 0.75rem; font-weight: 700; color: var(--white); transition: all .2s; letter-spacing: 1px; }
+  .dark-toggle:hover { border-color: #FF6B2B; color: #FF6B2B; }
 
   /* LOGIN */
   #loginScreen { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--black); }
@@ -184,6 +211,7 @@
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <a href="/display" target="_blank" style="padding:7px 14px;background:var(--black);color:var(--white);border:1.5px solid #333;border-radius:20px;font-size:0.7rem;font-weight:700;letter-spacing:1px;text-decoration:none;white-space:nowrap">⛶ Display</a>
+      <button class="dark-toggle" id="darkToggle" onclick="toggleDark()">🌙 Dark</button>
       <div class="ws-dot" id="wsDot"></div>
       <span class="ws-label" id="wsLabel">Conectando</span>
     </div>
@@ -659,6 +687,21 @@ async function clearMessageMain() {
     if (preview) preview.textContent = '';
     showNotif('Mensaje borrado', 'success');
   }
+}
+
+function toggleDark() {
+  const isDark = document.body.classList.toggle('dark');
+  localStorage.setItem('djDark', isDark ? '1' : '0');
+  document.getElementById('darkToggle').textContent = isDark ? '☀️ Light' : '🌙 Dark';
+}
+
+// Aplicar dark mode guardado
+if (localStorage.getItem('djDark') === '1') {
+  document.body.classList.add('dark');
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('darkToggle');
+    if (btn) btn.textContent = '☀️ Light';
+  });
 }
 
 function showNotif(msg,type='') {
