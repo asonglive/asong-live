@@ -101,9 +101,11 @@ async def startup():
     await init_db()
     # Migration: agregar columnas de redes sociales si no existen
     async with aiosqlite.connect("dj_request.db") as db:
-        for col in ['instagram','tiktok','facebook','spotify_dj','website']:
+        for col in ['instagram','tiktok','facebook','spotify_dj','website','tipo']:
             try:
-                await db.execute(f"ALTER TABLE configuracion ADD COLUMN {col} TEXT DEFAULT ''")
+                default = "'cancion'" if col == 'tipo' else "''"
+                tbl = 'solicitudes' if col == 'tipo' else 'configuracion'
+                await db.execute(f"ALTER TABLE {tbl} ADD COLUMN {col} TEXT DEFAULT {default}")
                 await db.commit()
             except:
                 pass
@@ -148,6 +150,30 @@ async def solicitar(data: dict):
         "artista": data["artista"],
         "portada_url": data.get("portada_url",""),
         "dedicatoria": data.get("dedicatoria","")
+    })
+    return {"id": solicitud_id, "ok": True}
+
+@app.post("/api/mensaje-dj")
+async def mensaje_dj(data: dict):
+    evento_id = data.get("evento_id", 1)
+    texto = data.get("texto", "").strip()
+    if not texto:
+        raise HTTPException(400, "Texto requerido")
+    async with aiosqlite.connect("dj_request.db") as db:
+        cursor = await db.execute(
+            "INSERT INTO solicitudes (evento_id, cancion, artista, spotify_id, portada_url, dedicatoria, tipo) VALUES (?,?,?,?,?,?,?)",
+            (evento_id, texto, "✈️ Mensaje Directo", "", "", "", "mensaje")
+        )
+        await db.commit()
+        solicitud_id = cursor.lastrowid
+    await manager.broadcast_to_dj({
+        "tipo": "nueva_solicitud",
+        "id": solicitud_id,
+        "cancion": texto,
+        "artista": "✈️ Mensaje Directo",
+        "portada_url": "",
+        "dedicatoria": "",
+        "tipo_solicitud": "mensaje"
     })
     return {"id": solicitud_id, "ok": True}
 

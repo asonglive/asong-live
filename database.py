@@ -24,6 +24,7 @@ async def init_db():
                 dedicatoria TEXT,
                 votos INTEGER DEFAULT 1,
                 estado TEXT DEFAULT 'pendiente',  -- pendiente | aprobada | reproducida | rechazada
+                tipo TEXT DEFAULT 'cancion',  -- cancion | mensaje
                 ip_solicitante TEXT,
                 creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (evento_id) REFERENCES eventos(id)

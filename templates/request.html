@@ -25,7 +25,7 @@
   .lang-btn { padding:4px 10px; border-radius:2px; font-size:0.7rem; font-weight:700; letter-spacing:1px; border:none; cursor:pointer; transition:all .2s; background:transparent; color:var(--gray-400); }
   .lang-btn.active { background:var(--white); color:var(--black); }
   .event-name { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; letter-spacing:2px; color:var(--white); line-height:1; }
-  .event-sub { color:var(--gray-400); font-size:0.65rem; letter-spacing:2px; text-transform:uppercase; margin-top:2px; display:none; }
+  .event-sub { color:var(--gray-400); font-size:0.65rem; letter-spacing:2px; text-transform:uppercase; margin-top:2px; }
 
   .main { padding:20px; display:flex; flex-direction:column; gap:20px; }
 
@@ -129,7 +129,7 @@
 <div class="dj-notif" id="djNotif"></div>
 
 <div class="header">
-  <div class="header-top">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
     <div class="logo">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 60" width="18" height="28">
         <rect x="0" y="15" width="5" height="30" fill="#FF6B2B" rx="2" opacity="0.4"/>
@@ -145,8 +145,13 @@
       <button class="lang-btn" onclick="setLang('es')" id="btnEs">ES</button>
     </div>
   </div>
-  <div class="event-name" id="eventName" style="padding-left:20px">DJ Request</div><div style="font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray-400);margin-top:3px;padding-left:20px">www.asong.live</div>
-  <div class="event-sub" id="eventSub">Request your song</div>
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <div class="event-name" id="eventName">DJ Request</div>
+      <div style="font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray-400);margin-top:3px" id="eventSub">asong.live</div>
+    </div>
+    <div style="font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--gray-400)">DJ REQUEST SYSTEM</div>
+  </div>
 </div>
 
 <div class="main">
@@ -193,6 +198,14 @@
   <!-- DIVIDER -->
   <div class="divider"></div>
 
+  <!-- SEND MESSAGE BUTTON -->
+  <div style="text-align:center;padding:8px 0 4px">
+    <button onclick="openMsgModal()" style="background:none;border:none;color:var(--gray-400);font-size:0.72rem;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;transition:all .2s" onmouseover="this.style.color='var(--orange)'" onmouseout="this.style.color='var(--gray-400)'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      <span id="sendMsgBtn">Can't find your song? Send a message</span>
+    </button>
+  </div>
+
   <!-- QUEUE -->
   <div>
     <div class="queue-header">
@@ -204,6 +217,27 @@
     </div>
   </div>
 
+</div>
+
+<!-- MODAL MENSAJE DIRECTO -->
+<div id="msgModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--white);border-radius:12px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="width:52px;height:52px;background:var(--black);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:2px;color:var(--black)" id="msgModalTitle">SEND A MESSAGE</div>
+      <div style="font-size:0.78rem;color:var(--gray-400);margin-top:4px" id="msgModalSub">The DJ will see it on screen</div>
+    </div>
+    <textarea id="msgInput" rows="3" placeholder="I'd like to hear... / Lost my keys! / Happy birthday Sara 🎂" style="width:100%;border:1.5px solid var(--gray-200);border-radius:8px;padding:12px;font-family:'DM Sans',sans-serif;font-size:0.9rem;resize:none;outline:none;color:var(--black);background:var(--gray-100);transition:border .2s" onfocus="this.style.borderColor='var(--black)'" onblur="this.style.borderColor='var(--gray-200)'"></textarea>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button onclick="closeMsgModal()" style="flex:1;padding:12px;background:transparent;border:1.5px solid var(--gray-200);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;color:var(--gray-400)">Cancel</button>
+      <button onclick="enviarMensaje()" style="flex:2;padding:12px;background:var(--black);border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:700;letter-spacing:1px;cursor:pointer;color:var(--white);display:flex;align-items:center;justify-content:center;gap:8px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        <span id="msgSendBtn">Send to DJ</span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <div class="retry-modal" id="retryModal">
@@ -268,6 +302,10 @@ function setLang(l) {
   document.getElementById('submitText').textContent = s.submitText;
   document.getElementById('queueLabel').textContent = s.queueLabel;
   document.getElementById('emptyText').textContent = s.noRequests;
+  if(document.getElementById('sendMsgBtn')) document.getElementById('sendMsgBtn').textContent = s.sendMsg;
+  if(document.getElementById('msgModalTitle')) document.getElementById('msgModalTitle').textContent = s.msgModalTitle;
+  if(document.getElementById('msgModalSub')) document.getElementById('msgModalSub').textContent = s.msgModalSub;
+  if(document.getElementById('msgSendBtn')) document.getElementById('msgSendBtn').textContent = s.msgSendBtn;
   document.getElementById('eventSub').textContent = s.eventSub;
   document.getElementById('retryTitle').textContent = s.retryTitle;
   document.getElementById('retrySub').textContent = s.retrySub;
@@ -398,6 +436,36 @@ function showDJNotif(msg, type, duration=5000) {
   n.textContent = msg;
   n.className = 'dj-notif show ' + type;
   setTimeout(() => n.classList.remove('show'), duration);
+}
+
+function openMsgModal() {
+  const m = document.getElementById('msgModal');
+  m.style.display = 'flex';
+  setTimeout(() => document.getElementById('msgInput').focus(), 100);
+}
+
+function closeMsgModal() {
+  document.getElementById('msgModal').style.display = 'none';
+  document.getElementById('msgInput').value = '';
+}
+
+async function enviarMensaje() {
+  const texto = document.getElementById('msgInput').value.trim();
+  if (!texto) return;
+  const btn = document.querySelector('#msgModal button:last-child');
+  btn.disabled = true;
+  const res = await fetch('/api/mensaje-dj', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({evento_id: EVENTO_ID, texto})
+  });
+  if (res.ok) {
+    closeMsgModal();
+    showToast(lang === 'es' ? '✅ Mensaje enviado al DJ' : '✅ Message sent to DJ');
+  } else {
+    showToast(lang === 'es' ? 'Error al enviar' : 'Error sending', true);
+  }
+  btn.disabled = false;
 }
 
 function showToast(msg, isError=false) {
