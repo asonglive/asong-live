@@ -358,10 +358,23 @@ async def config_publica():
 async def backup_db(password: str):
     if password != DJ_PASSWORD:
         raise HTTPException(403, "Forbidden")
-    return FileResponse(
-        "dj_request.db",
-        media_type="application/octet-stream",
-        filename=f"asong_backup_{__import__('datetime').datetime.now().strftime('%Y%m%d_%H%M')}.db"
+    from fastapi.responses import PlainTextResponse
+    import datetime
+    async with aiosqlite.connect("dj_request.db") as db:
+        db.row_factory = aiosqlite.Row
+        # Export all tables as JSON
+        data = {}
+        for table in ["eventos","solicitudes","configuracion","votos"]:
+            cursor = await db.execute(f"SELECT * FROM {table}")
+            rows = await cursor.fetchall()
+            data[table] = [dict(r) for r in rows]
+    import json
+    filename = f"asong_backup_{datetime.datetime.now().strftime('%Y%m%d_%H%M')}.json"
+    from fastapi.responses import Response
+    return Response(
+        content=json.dumps(data, indent=2, default=str),
+        media_type="application/json",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
 
 @app.get("/qr")
